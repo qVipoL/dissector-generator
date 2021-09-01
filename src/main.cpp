@@ -1,6 +1,6 @@
 #include "../include/Lexer/Lexer.h"
-#include "../include/io.h"
-#include "../include/std_include.h"
+#include "../include/util/io.h"
+#include "../include/util/std_include.h"
 
 int main(int argc, char *argv[]) {
     string content;

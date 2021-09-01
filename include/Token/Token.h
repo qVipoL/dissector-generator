@@ -1,7 +1,7 @@
 #ifndef __TOKEN_H__
 #define __TOKEN_H__
 
-#include "../std_include.h"
+#include "../util/std_include.h"
 #include "TokenType.h"
 
 class Token {

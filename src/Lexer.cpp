@@ -1,6 +1,6 @@
 #include "../include/Lexer/Lexer.h"
 
-#include "../include/io.h"
+#include "../include/util/io.h"
 
 /* Private */
 

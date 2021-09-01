@@ -2,7 +2,7 @@
 #define __LEXER_H__
 
 #include "../Token/Token.h"
-#include "../std_include.h"
+#include "../util/std_include.h"
 
 class Lexer {
    private:
