@@ -12,6 +12,9 @@ class Token {
    public:
     Token(TokenType type, string value);
     ~Token();
+
+    TokenType getType();
+    string getValue();
     void display();
 };
 

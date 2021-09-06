@@ -7,24 +7,24 @@
 class Lexer {
    private:
     string _content;
-    int _content_length;
-    int _char_idx;
+    int _content_length, _char_idx, _line_n;
     char _curr_char;
-    int _line_n;
 
     void lexerAdvance();
     void skipWhitespace();
     void skipComment();
-    Token collectNumber();
-    Token collectId();
-    Token collectString();
-    Token advanceWithToken(TokenType type);
+
+    Token *collectId();
+    Token *collectNumber();
+    Token *collectString();
+    Token *advanceWithToken(TokenType type);
 
    public:
     Lexer(string content);
     ~Lexer();
 
-    Token getNextToken();
+    int getLineN();
+    Token *getNextToken();
 };
 
 #endif

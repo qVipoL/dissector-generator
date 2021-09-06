@@ -1,0 +1,308 @@
+/*=== Dissector Generator Pseudo Code ===*/
+
+/*=== OBJECTS ===*/
+
+Generator: object {
+    endianType eType;
+    map<string, protoDissector> protoDetails;
+    map<string, int> typeToByte;
+    map<string, structInfo> structs;
+    map<string, enumInfo> enums;
+    enumInfo tempEnum;
+    
+    structInfo tempStruct;
+}
+
+endianType: enum {
+    BIG,
+    LITTLE
+}
+
+protoDissector: object {
+    string protoDescription;
+    string table;
+    string tableInputPort;
+}
+
+structInfo: object {
+    boolean isTopLevel;
+    boolean isReferancesSetup;
+    protoDissector details;
+
+    vector<structElement> elements;
+}
+
+enumInfo: object {
+    string name;
+    string type;
+    int bytes;
+    boolean hasDefault;
+    string defaultString;
+    vector<enumElement> elements;
+}
+
+enumElement: object {
+    string value;
+    string id;
+    string string;
+}
+
+abstract structElement: object {
+    string name;
+}
+
+localElement: object extends structElement {
+    int bytes;
+}
+
+switchElement: object extends structElement {
+    expression condition;
+    vector<switchCase> cases;
+}
+
+switchCase: object {
+    boolean isDefault;
+    string caseValue;
+    boolean isVoid;
+    string typeName;
+    string displayName;
+    string localName;
+    vector<structElement> elements;
+}
+
+expression: object {
+    fieldPath path;
+    string operation;
+    string value;
+}
+
+fieldPath: object {
+    pathType type;
+    fieldPath next;
+    string componentName;
+}
+
+pathType: enum {
+    ABS,
+    RELATIVE_PARENT,
+    RELATIVE_CURRENT
+}
+
+/*=== Entry & Exit ===*/
+
+- entry to the rule happens when the rule is entered by the generator, exit happens after all the children
+    were generated.
+
+/*=== RULES ===*/
+
+proto:
+    entry: nothing
+    exit: {
+        /* resolve items in all the structs here (long so will do in code) */
+        /* generate code (also long, will be in the code) */
+    }
+
+protoDecl:
+    entry: nothing
+    exit: nothing
+
+/*=== DISSECTOR SETTINGS ===*/
+
+endian: // setting program endian
+    entry: nothing
+    exit: {
+        endianType endian = ID;
+        this.eType = endian; (big or little endian)
+    }
+
+protoDetails: // setting dissector details like: name & description
+    entry: nothing
+    exit: {
+        string name = ID(0), details = ID(1);
+        this.protoDetails.set(name, new protoDissector(details)); 
+    }
+
+dissectorEntry: // setting dissector entry, the struct that should represent the protocol dissector
+    entry: nothing
+    exit: {
+        string name = ID(0), structName = ID(1);
+        protoDissector details = this.protoDetails.get(name);
+        structInfo struct = this.struct.get(structName);
+
+        if(!details || !struct) throw '...'
+
+        struct.isTopLevel = true;
+        struct.details = details;
+    }
+
+dissectorTable: // connecting the dissector entry with a port from the table (STRING(0) type) (STRING(1) port)
+    entry: nothing
+    exit: {
+        string name = ID, table = STRING(0), tableInputPort = STRING(1);
+        protoDissector details = this.protoDetails.get(name);
+
+        if(!details) throw '...'
+
+        details.table = table;
+        details.tableInputPort = tableInputPort;
+    } 
+
+/*=== ENUM ===*/
+
+enum:
+    entry: {
+        this.tempEnum = new enumInfo();
+    }
+    exit:  {
+        string name = ID(0), type = ID(1);
+        int bytes = this.typeToByte.get(type);
+
+        if(!bytes) throw '...';
+
+        this.tempEnum.name = name;
+        this.tempEnum.type = type;
+        this.tempEnum.bytes = bytes;
+
+        this.enums.set(name, tempEnum);
+
+        this.tempEnum = null;
+    }
+
+enumBody:
+    entry: nothing
+    exit: {
+        if(NUMBER is defined) {
+            this.tempEnum.elements.add(NUMBER, ID, STRING)
+        } else {
+            this.tempEnum.hasDefault = true;
+            defaultString = STRING;
+        }
+    }
+
+/*=== STRUCT ===*/
+
+struct: // dont go over children
+    entry: {
+        this.tempStruct = new structInfo();
+
+        this.tempStruct.elements = this.parseStructEelements(curNode.children[0]);
+    }
+    exit: {
+        string name = ID;
+
+        this.structs.set(name);
+        this.tempStruct = null;
+    }
+
+vector<element> parseStructEelements(AST node) {
+    if(!node) throw '...';
+
+    vector<element> elements;
+
+    for(AST child : node.children) {
+        if(child.type == LOCAL_ELEMENT) {
+            elements.add(parseLocalElement(child));
+        } else if(child.type == SWITCH) {
+            element.add(parseSwitchElement(child));
+        }
+    }
+
+    return elements;
+}
+
+localElement parseLocalElement(AST node) {
+    string type = node.ID(0);
+    int bytes = typeToByte.get(type)
+
+    if(!bytes) throw '...';
+
+    localElement element = new localElement(bytes);
+
+    element.name = node.STRING() != null ? node.STRING() : node.ID(1);
+
+    return element;
+}
+
+switchElement parseSwitchElement(AST node) {
+    switchElement element = new switchElement();
+
+    element.condition = new expression(node);
+    string labelText = "";
+    
+    node = node.children[0];
+
+    /* parse all the cases *
+    for(AST child : node.children) {
+        switchCase case = new switchCase();
+
+        if(child.type == CASE_DEFAULT) {
+            case.isDefault = true;
+            labelText = "default";
+        } else if (child.children[0].ID() != null) {
+            case.caseValue = child.children[0].ID();
+            labelText = case.caseValue;
+        } else {
+            case.caseValue = child.children[0].NUMBER();
+            labelText = case.caseValue;
+        }
+
+        parseCaseBody(case, child.children[1], labelText);
+        
+        element.cases.add(case);
+        case.localName = tempStruct.name + "_" + element.cases.indexOf(case);
+    }
+
+    return element;
+}
+
+void parseCaseBody(switchCase case, AST node, string labelText) {
+    if(node.type != LOCAL_ELEMENT) { // void
+        case.isVoid = true;
+    } else { // local element
+        localElement element = parseLocalElement(node);
+        case.elements.add(element);
+    }
+}
+
+ctor expression(AST node) {
+    operation = node.OPERATION();
+
+    path = new fieldPath(node.children[0]);
+
+    value = node.NUMBER() ? node.NUMBER() : node.ID();
+}
+
+ctor fieldPath() {
+    type = pathType.RELATIVE_CURRENT;
+}
+
+ctor fieldPath(AST node) {
+    fieldPath comp = null, tmpComp = null;
+
+    type = pathType.RELATIVE_CURRENT;
+
+    if(node.startsWith() == '../') {
+        type = pathType.ABS;
+    } else if (node.startsWith == '/') {
+        type = pathType.RELATIVE_PARENT;
+    }
+
+    /* parse fields */
+
+    for(AST child : node.children) {
+        if(comp == null) {
+            comp = this;
+            tmpComp = comp;
+        } else {
+            tmpComp = new fieldPath();
+            comp.next = tmpComp;
+            comp = tmpComp;
+        }
+
+        if(child.ID() != null) {
+            tmpComp.componentName = child.ID();
+        } else {
+            tmpComp.componentName = child.STRING();
+        }
+    }
+}

@@ -1,0 +1,66 @@
++ - 1 or more
+* - 0 or more
+? - 0 or 1
+| - or
+
+proto: protoDecl+
+
+protoDecl: endian ";"
+    | protoDetails ";"
+    | dissectorEntry ";"
+    | dissectorTable ";"
+    | enum ";"
+    | struct ";"
+
+/*=== DISSECTOR SETTINGS ===*/
+
+endian: "endian" "=" ("big" | "little")
+
+protoDetails: "details" "=" "{" STRING "," STRING "}"
+
+dissectorEntry: "dissector" ID "=" ID
+
+dissectorTable: "dissectorTable" "[" STRING "," STRING "]" "=" ID
+
+/*=== ENUM ===*/
+
+enum: "enum" ID ":" ID "{" enumBody ("," enumBody)* "}"
+
+enumBody: NUMBER "=" ID ":" STRING
+    | "default" "=" STRING 
+
+/*=== STRUCT ===*/
+
+struct: "struct" ID "{" (structBody ";")+ "}"
+
+structBody: localElement
+    | switch
+
+localElement: ID (ID | STRING)
+
+/*=== SWITCH ===*/
+
+switch: "switch" "(" switchCondition ")" "{" case+ "}"
+
+switchCondition: fieldPath
+    | fieldPath OPERATION (NUMBER | ID)
+
+fieldPath: startsWith=("../" | "/")? field ("/" field)*
+
+field: ID | STRING
+
+case: ("case" caseLabel | "default") ":" caseBody ";"
+
+caseLabel: ID | NUMBER
+
+caseBody:
+    | localElement
+    | "void"
+
+TOKEN_TYPES:
+- ID (alnum)
+- NUMBER (numeric)
+- STRING (starts with " ends with ")
+- SEPARATOR ( : ; , ( ) { } [ ] = )
+- OPERATION ( + - < == != > )
+- EOF (\0)

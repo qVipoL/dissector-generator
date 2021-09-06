@@ -25,7 +25,7 @@ void Lexer::skipComment() {
         this->lexerAdvance();
 }
 
-Token Lexer::collectNumber() {
+Token *Lexer::collectNumber() {
     string buffer;
 
     while (isdigit(_curr_char)) {
@@ -33,10 +33,10 @@ Token Lexer::collectNumber() {
         this->lexerAdvance();
     }
 
-    return Token(TOKEN_NUMBER, buffer);
+    return new Token(TOKEN_NUMBER, buffer);
 }
 
-Token Lexer::collectId() {
+Token *Lexer::collectId() {
     string buffer;
 
     while (isalnum(_curr_char) || _curr_char == '_') {
@@ -45,10 +45,10 @@ Token Lexer::collectId() {
         this->lexerAdvance();
     }
 
-    return Token(TOKEN_ID, buffer);
+    return new Token(TOKEN_ID, buffer);
 }
 
-Token Lexer::collectString() { /* Throws runtime exception */
+Token *Lexer::collectString() { /* Throws runtime exception */
     ostringstream stringStream;
     string buffer;
 
@@ -67,16 +67,16 @@ Token Lexer::collectString() { /* Throws runtime exception */
 
     this->lexerAdvance();
 
-    return Token(TOKEN_STRING, buffer);
+    return new Token(TOKEN_STRING, buffer);
 }
 
-Token Lexer::advanceWithToken(TokenType type) {
+Token *Lexer::advanceWithToken(TokenType type) {
     string buffer = "";
     buffer += _curr_char;
 
     this->lexerAdvance();
 
-    return Token(type, buffer);
+    return new Token(type, buffer);
 }
 
 /* Public */
@@ -93,7 +93,11 @@ Lexer::~Lexer() {
     // cout << "Lexer Destructed." << endl;
 }
 
-Token Lexer::getNextToken() { /* Throws runtime exception */
+int Lexer::getLineN() {
+    return _line_n;
+}
+
+Token *Lexer::getNextToken() { /* Throws runtime exception */
     ostringstream stringStream;
 
     while (_curr_char != '\0' && _char_idx < _content_length) {
@@ -116,10 +120,10 @@ Token Lexer::getNextToken() { /* Throws runtime exception */
 
             if (_curr_char == '=') {
                 this->lexerAdvance();
-                return Token(TOKEN_EQUALS_EQUALS, "==");
+                return new Token(TOKEN_OPERATION, "==");
             }
 
-            return Token(TOKEN_EQUALS, "=");
+            return new Token(TOKEN_OPERATION, "=");
         }
 
         if (_curr_char == '!') {
@@ -131,7 +135,7 @@ Token Lexer::getNextToken() { /* Throws runtime exception */
             }
 
             this->lexerAdvance();
-            return Token(TOKEN_NOT_EQUALS, "!=");
+            return new Token(TOKEN_OPERATION, "!=");
         }
 
         switch (_curr_char) {
@@ -139,31 +143,31 @@ Token Lexer::getNextToken() { /* Throws runtime exception */
                 return this->collectString();
 
             case '<':
-                return this->advanceWithToken(TOKEN_LESS_THAN);
+                return this->advanceWithToken(TOKEN_OPERATION);
 
             case '>':
-                return this->advanceWithToken(TOKEN_LARGER_THAN);
+                return this->advanceWithToken(TOKEN_OPERATION);
 
             case '{':
-                return this->advanceWithToken(TOKEN_LBRACE);
+                return this->advanceWithToken(TOKEN_SEPARATOR);
 
             case '}':
-                return this->advanceWithToken(TOKEN_RBRACE);
+                return this->advanceWithToken(TOKEN_SEPARATOR);
 
             case '[':
-                return this->advanceWithToken(TOKEN_LBRACKET);
+                return this->advanceWithToken(TOKEN_SEPARATOR);
 
             case ']':
-                return this->advanceWithToken(TOKEN_RBRACKET);
+                return this->advanceWithToken(TOKEN_SEPARATOR);
 
             case ':':
-                return this->advanceWithToken(TOKEN_COLON);
+                return this->advanceWithToken(TOKEN_SEPARATOR);
 
             case ';':
-                return this->advanceWithToken(TOKEN_SEMI_COLON);
+                return this->advanceWithToken(TOKEN_SEPARATOR);
 
             case ',':
-                return this->advanceWithToken(TOKEN_COMMA);
+                return this->advanceWithToken(TOKEN_SEPARATOR);
 
             case '\0':
                 return this->advanceWithToken(TOKEN_EOF);
@@ -174,5 +178,5 @@ Token Lexer::getNextToken() { /* Throws runtime exception */
         }
     }
 
-    return Token(TOKEN_EOF, "\0");
+    return new Token(TOKEN_EOF, "\0");
 }

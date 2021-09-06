@@ -4,6 +4,8 @@
 
 int main(int argc, char *argv[]) {
     string content;
+    Lexer *lexer;
+    Token *token;
 
     if (argc < 2) {
         cout << "No file-name was passed." << endl;
@@ -12,17 +14,18 @@ int main(int argc, char *argv[]) {
 
     try {
         content = readFile(argv[1]);
+        lexer = new Lexer(content);
 
-        Lexer lexer = Lexer(content);
-
-        for (int i = 0; i < 30; i++) {
-            Token t = lexer.getNextToken();
-            t.display();
+        for (int i = 0; i < 15; i++) {
+            token = lexer->getNextToken();
+            token->display();
+            delete token;
         }
+
+        delete lexer;
     } catch (runtime_error err) {
         cout << err.what();
     }
-    // cout << content << endl;
 
     return EXIT_SUCCESS;
 }
