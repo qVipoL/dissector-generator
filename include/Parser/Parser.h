@@ -15,10 +15,24 @@ class Parser {
 
     AST *parseProto();
     AST *parseProtoDecl();
+
     AST *parseEndian();
     AST *parseProtoDetails();
     AST *parseDissectorEntry();
     AST *parseDissectorTable();
+
+    AST *parseEnum();
+    AST *parseEnumBody();
+    AST *parseStruct();
+    AST *parseStructBody();
+    AST *parseLocalElement();
+    AST *parseSwitch();
+    AST *parseSwitchCondition();
+    AST *parseFieldPath();
+    AST *parseField();
+    AST *parseCase();
+    AST *parseCaseLabel();
+    AST *parseCaseBody();
 
    public:
     Parser(Lexer *lexer);

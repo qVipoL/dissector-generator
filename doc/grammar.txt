@@ -26,15 +26,15 @@ dissectorTable: "dissectorTable" "[" STRING "," STRING "]" "=" ID
 
 enum: "enum" ID ":" ID "{" enumBody ("," enumBody)* "}"
 
-enumBody: NUMBER "=" ID ":" STRING
-    | "default" "=" STRING 
+enumBody: NUMBER "=" ID ":" STRING (AST_ENUM_BODY_DECL)
+    | "default" "=" STRING (AST_ENUM_BODY_DEFAULT)
 
 /*=== STRUCT ===*/
 
 struct: "struct" ID "{" (structBody ";")+ "}"
 
-structBody: localElement
-    | switch
+structBody: localElement (AST_STRUCT_BODY_LOCAL)
+    | switch (AST_STRUCT_BODY_SWITCH)
 
 localElement: ID (ID | STRING)
 
@@ -61,6 +61,5 @@ TOKEN_TYPES:
 - ID (alnum)
 - NUMBER (numeric)
 - STRING (starts with " ends with ")
-- SEPARATOR ( : ; , ( ) { } [ ] = )
-- OPERATION ( + - < == != > )
+- SEPARATOR ( : ; , ( ) { } [ ] = ../ / )
 - EOF (\0)

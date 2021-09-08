@@ -12,6 +12,9 @@ class AST {
 
     list<string> _ids;
     list<string> _strings;
+    list<string> _numbers;
+
+    list<string> _starts_with;
 
    public:
     AST(ASTType type);
@@ -21,6 +24,8 @@ class AST {
     ASTType getType();
     string getId(int idx);
     string getString(int idx);
+    string getNumber(int idx);
+    string getStartsWith(int idx);
     int getLineN();
 
     void setIds(list<string> ids);
@@ -28,6 +33,8 @@ class AST {
     void addChild(AST *child);
     void addId(string id);
     void addString(string string);
+    void addNumber(string number);
+    void addStartsWith(string startWith);
 
     void display();
 };

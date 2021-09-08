@@ -138,6 +138,25 @@ Token *Lexer::getNextToken() { /* Throws runtime exception */
             return new Token(TOKEN_OPERATION, "!=");
         }
 
+        if (_curr_char == '.') {
+            this->lexerAdvance();
+
+            if (_curr_char != '.') {
+                stringStream << "[Line " << _line_n << "] Expected . after ." << endl;
+                throw runtime_error(stringStream.str());
+            }
+
+            this->lexerAdvance();
+
+            if (_curr_char != '/') {
+                stringStream << "[Line " << _line_n << "] Expected / after .." << endl;
+                throw runtime_error(stringStream.str());
+            }
+
+            this->lexerAdvance();
+            return new Token(TOKEN_SEPARATOR, "../");
+        }
+
         switch (_curr_char) {
             case '"':
                 return this->collectString();
@@ -167,6 +186,9 @@ Token *Lexer::getNextToken() { /* Throws runtime exception */
                 return this->advanceWithToken(TOKEN_SEPARATOR);
 
             case ',':
+                return this->advanceWithToken(TOKEN_SEPARATOR);
+
+            case '/':
                 return this->advanceWithToken(TOKEN_SEPARATOR);
 
             case '\0':
