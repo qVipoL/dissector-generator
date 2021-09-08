@@ -1,0 +1,30 @@
+#ifndef __PARSER_H__
+#define __PARSER_H__
+
+#include "../AST/AST.h"
+#include "../Lexer/Lexer.h"
+#include "../util/std_include.h"
+
+class Parser {
+   private:
+    Lexer *_lexer;
+    Token *_curr_token;
+
+    void eatToken(TokenType type);
+    void eatToken(TokenType type, string value);
+
+    AST *parseProto();
+    AST *parseProtoDecl();
+    AST *parseEndian();
+    AST *parseProtoDetails();
+    AST *parseDissectorEntry();
+    AST *parseDissectorTable();
+
+   public:
+    Parser(Lexer *lexer);
+    ~Parser();
+
+    AST *parse();
+};
+
+#endif

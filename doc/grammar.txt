@@ -16,7 +16,7 @@ protoDecl: endian ";"
 
 endian: "endian" "=" ("big" | "little")
 
-protoDetails: "details" "=" "{" STRING "," STRING "}"
+protoDetails: "details" "=" "{" STRING "," STRING "," STRING "}"
 
 dissectorEntry: "dissector" ID "=" ID
 

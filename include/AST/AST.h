@@ -8,7 +8,7 @@ class AST {
    private:
     ASTType _type;
     int _line_n;
-    list<AST> _children;
+    list<AST *> _children;
 
     list<string> _ids;
     list<string> _strings;
@@ -19,12 +19,17 @@ class AST {
     ~AST();
 
     ASTType getType();
-    list<string> getIds();
-    list<string> getStrings();
+    string getId(int idx);
+    string getString(int idx);
+    int getLineN();
 
     void setIds(list<string> ids);
     void setStrings(list<string> strings);
-    void addChild(AST child);
+    void addChild(AST *child);
+    void addId(string id);
+    void addString(string string);
+
+    void display();
 };
 
 #endif
