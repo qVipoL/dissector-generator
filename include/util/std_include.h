@@ -5,11 +5,11 @@
 
 #include <fstream>
 #include <iostream>
-#include <list>
 #include <sstream>
 #include <stdexcept>
 #include <streambuf>
 #include <string>
+#include <vector>
 
 using namespace std;
 

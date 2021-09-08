@@ -8,13 +8,35 @@ class AST {
    private:
     ASTType _type;
     int _line_n;
-    list<AST *> _children;
+    vector<AST *> _children;
 
-    list<string> _ids;
-    list<string> _strings;
-    list<string> _numbers;
+    vector<string> _ids;
+    vector<string> _strings;
+    vector<string> _numbers;
 
-    list<string> _starts_with;
+    vector<string> _starts_with;
+
+    const vector<string> TYPES = {
+        "AST_PROTO",
+        "AST_PROTO_DECL",
+        "AST_ENDIAN",
+        "AST_PROTO_DETAILS",
+        "AST_DISSECTOR_ENTRY",
+        "AST_DISSECTOR_TABLE",
+        "AST_ENUM",
+        "AST_ENUM_BODY_DECL",
+        "AST_ENUM_BODY_DEFAULT",
+        "AST_STRUCT",
+        "AST_STRUCT_BODY_LOCAL",
+        "AST_STRUCT_BODY_SWITCH",
+        "AST_LOCAL_ELEMENT",
+        "AST_SWITCH",
+        "AST_SWITCH_CONDITION",
+        "AST_FIELD_PATH",
+        "AST_FIELD",
+        "AST_CASE",
+        "AST_CASE_LABEL",
+        "AST_CASE_BODY"};
 
    public:
     AST(ASTType type);
@@ -28,15 +50,13 @@ class AST {
     string getStartsWith(int idx);
     int getLineN();
 
-    void setIds(list<string> ids);
-    void setStrings(list<string> strings);
     void addChild(AST *child);
     void addId(string id);
     void addString(string string);
     void addNumber(string number);
     void addStartsWith(string startWith);
 
-    void display();
+    void display(int width);
 };
 
 #endif

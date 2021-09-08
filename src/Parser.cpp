@@ -1,6 +1,6 @@
 #include "../include/Parser/Parser.h"
 
-/* private */
+/* Private */
 
 void Parser::eatToken(TokenType type) {
     ostringstream stringStream;
@@ -97,6 +97,7 @@ AST *Parser::parseProtoDetails() {
     this->eatToken(TOKEN_STRING);
     this->eatToken(TOKEN_SEPARATOR, ",");
     string protoAbbrv = _curr_token->getValue();
+    this->eatToken(TOKEN_STRING);
     this->eatToken(TOKEN_SEPARATOR, "}");
 
     node->addString(protoName);
@@ -115,8 +116,8 @@ AST *Parser::parseDissectorEntry() {
     string entry = _curr_token->getValue();
     this->eatToken(TOKEN_ID);
 
-    node->addString(dissector);
-    node->addString(entry);
+    node->addId(dissector);
+    node->addId(entry);
 
     return node;
 }
@@ -129,13 +130,13 @@ AST *Parser::parseDissectorTable() {
     this->eatToken(TOKEN_STRING);
     this->eatToken(TOKEN_SEPARATOR, ",");
     string tableEntry = _curr_token->getValue();
+    this->eatToken(TOKEN_STRING);
     this->eatToken(TOKEN_SEPARATOR, "]");
     this->eatToken(TOKEN_OPERATION, "=");
     string dissector = _curr_token->getValue();
     this->eatToken(TOKEN_ID);
 
     node->addId(dissector);
-
     node->addString(tableType);
     node->addString(tableEntry);
 
@@ -382,7 +383,7 @@ AST *Parser::parseCaseBody() {
     return node;
 }
 
-/* public */
+/* Public */
 
 Parser::Parser(Lexer *lexer) {
     _lexer = lexer;
