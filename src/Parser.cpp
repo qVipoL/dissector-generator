@@ -59,6 +59,7 @@ AST *Parser::parseProtoDecl() {
         node->addChild(this->parseStruct());
     else {
         stringStream << "[Line " << node->getLineN() << "] Unexpected protocol declaration" << endl;
+        delete node;
         throw runtime_error(stringStream.str());
     }
 
@@ -77,6 +78,7 @@ AST *Parser::parseEndian() {
 
     if (endianValue.compare("big") != 0 && endianValue.compare("little") != 0) {
         stringStream << "[Line " << node->getLineN() << "] Expected big or little endian" << endl;
+        delete node;
         throw runtime_error(stringStream.str());
     }
 
@@ -173,7 +175,7 @@ AST *Parser::parseEnumBody() {
         node = new AST(AST_ENUM_BODY_DECL, _lexer->getLineN());
         string enumValue = _curr_token->getValue();
         this->eatToken(TOKEN_NUMBER);
-        this->eatToken(TOKEN_SEPARATOR, "=");
+        this->eatToken(TOKEN_OPERATION, "=");
         string enumId = _curr_token->getValue();
         this->eatToken(TOKEN_ID);
         this->eatToken(TOKEN_SEPARATOR, ":");
@@ -187,14 +189,14 @@ AST *Parser::parseEnumBody() {
     } else if (_curr_token->getValue().compare("default") == 0) {
         node = new AST(AST_ENUM_BODY_DEFAULT, _lexer->getLineN());
         this->eatToken(TOKEN_ID);
-        this->eatToken(TOKEN_SEPARATOR, "=");
+        this->eatToken(TOKEN_OPERATION, "=");
         string displayValue = _curr_token->getValue();
         this->eatToken(TOKEN_STRING);
 
         node->addString(displayValue);
 
     } else {
-        stringStream << "[Line " << node->getLineN() << "] Unexpected enum body" << endl;
+        stringStream << "[Line " << _lexer->getLineN() << "] Unexpected enum body" << endl;
         throw runtime_error(stringStream.str());
     }
 
@@ -209,7 +211,7 @@ AST *Parser::parseStruct() {
     this->eatToken(TOKEN_SEPARATOR, "{");
 
     while (_curr_token->getValue().compare("}") != 0) {
-        this->parseStructBody();
+        node->addChild(this->parseStructBody());
         this->eatToken(TOKEN_SEPARATOR, ";");
     }
 
@@ -224,12 +226,13 @@ AST *Parser::parseStructBody() {
 
     if (_curr_token->getValue().compare("switch") == 0) {
         node = new AST(AST_STRUCT_BODY_SWITCH, _lexer->getLineN());
+        this->eatToken(TOKEN_ID);
         node->addChild(this->parseSwitch());
     } else if (_curr_token->getType() == TOKEN_ID) {
         node = new AST(AST_STRUCT_BODY_LOCAL, _lexer->getLineN());
         node->addChild(this->parseLocalElement());
     } else {
-        stringStream << "[Line " << node->getLineN() << "] Unexpected struct body" << endl;
+        stringStream << "[Line " << _lexer->getLineN() << "] Unexpected struct body" << endl;
         throw runtime_error(stringStream.str());
     }
 
@@ -254,6 +257,7 @@ AST *Parser::parseLocalElement() {
         node->addString(elementValue);
     } else {
         stringStream << "[Line " << node->getLineN() << "] Unknown local element value type" << endl;
+        delete node;
         throw runtime_error(stringStream.str());
     }
 
@@ -291,16 +295,14 @@ AST *Parser::parseFieldPath() {
 
     string startsWith = _curr_token->getValue();
 
-    if (startsWith.compare("../") != 0 && startsWith.compare("/") != 0) {
-        stringStream << "[Line " << node->getLineN() << "] Unexpected path" << endl;
-        throw runtime_error(stringStream.str());
+    if (startsWith.compare("../") == 0 && startsWith.compare("/") == 0) {
+        this->eatToken(TOKEN_SEPARATOR);
+        node->addStartsWith(startsWith);
     }
 
-    this->eatToken(TOKEN_SEPARATOR);
-    node->addStartsWith(startsWith);
     node->addChild(this->parseField());
 
-    while (_curr_token->getValue().compare("/") != 0) {
+    while (_curr_token->getValue().compare("/") == 0) {
         this->eatToken(TOKEN_SEPARATOR, "/");
         node->addChild(this->parseField());
     }
@@ -322,6 +324,7 @@ AST *Parser::parseField() {
         node->addString(field);
     } else {
         stringStream << "[Line " << node->getLineN() << "] Unexpected field type" << endl;
+        delete node;
         throw runtime_error(stringStream.str());
     }
 
@@ -339,6 +342,7 @@ AST *Parser::parseCase() {
         this->eatToken(TOKEN_ID);
     } else {
         stringStream << "[Line " << node->getLineN() << "] Unknown case decaration" << endl;
+        delete node;
         throw runtime_error(stringStream.str());
     }
 
@@ -363,6 +367,7 @@ AST *Parser::parseCaseLabel() {
         node->addNumber(labelValue);
     } else {
         stringStream << "[Line " << node->getLineN() << "] Unexpected case label type" << endl;
+        delete node;
         throw runtime_error(stringStream.str());
     }
 
@@ -373,11 +378,11 @@ AST *Parser::parseCaseBody() {
     AST *node = new AST(AST_CASE_BODY, _lexer->getLineN());
 
     string bodyValue = _curr_token->getValue();
-    this->eatToken(TOKEN_ID);
 
-    if (bodyValue.compare("void") == 0)
+    if (bodyValue.compare("void") == 0) {
         node->addId(bodyValue);
-    else
+        this->eatToken(TOKEN_ID);
+    } else
         node->addChild(this->parseLocalElement());
 
     return node;

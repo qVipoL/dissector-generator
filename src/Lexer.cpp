@@ -179,6 +179,12 @@ Token *Lexer::getNextToken() { /* Throws runtime exception */
             case ']':
                 return this->advanceWithToken(TOKEN_SEPARATOR);
 
+            case '(':
+                return this->advanceWithToken(TOKEN_SEPARATOR);
+
+            case ')':
+                return this->advanceWithToken(TOKEN_SEPARATOR);
+
             case ':':
                 return this->advanceWithToken(TOKEN_SEPARATOR);
 

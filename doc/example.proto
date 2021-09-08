@@ -1,0 +1,25 @@
+endian = big;
+
+enum messageType:uint8 {
+    1 = REQUEST : "Request",
+    2 = RESPONSE : "Response",
+    default = "Unknown"
+};
+
+struct packet {
+    uint32 length; #4 bytes, message length
+    messageType type;
+
+    switch(type) {
+        case REQUEST:
+            uint32 request_data;
+        case 2:
+            uint64 response_data;
+        default:
+            uint8 unknown_type;
+    };
+};
+
+details = {"example_proto", "Example Protocol", "example_proto"};
+dissector example_proto = packet;
+dissectorTable["tcp.port", "3001"] = example_proto;

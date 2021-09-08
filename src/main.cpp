@@ -4,6 +4,7 @@
 #include "../include/util/std_include.h"
 
 int main(int argc, char *argv[]) {
+    int error_code = EXIT_SUCCESS;
     string content;
     Lexer *lexer;
     Parser *parser;
@@ -22,13 +23,13 @@ int main(int argc, char *argv[]) {
         tree = parser->parse();
 
         tree->display(1);
-
         delete tree;
-        delete parser;
-        delete lexer;
     } catch (runtime_error err) {
         cout << err.what();
+        error_code = EXIT_FAILURE;
     }
 
-    return EXIT_SUCCESS;
+    delete parser;
+    delete lexer;
+    return error_code;
 }
