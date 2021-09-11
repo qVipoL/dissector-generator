@@ -20,6 +20,7 @@ enum ASTType {
     AST_FIELD_PATH,
     AST_FIELD,
     AST_CASE,
+    AST_CASE_DEFAULT,
     AST_CASE_LABEL,
     AST_CASE_BODY
 };

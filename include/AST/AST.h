@@ -43,6 +43,7 @@ class AST {
     AST(ASTType type, int line_n);
     ~AST();
 
+    vector<AST *> getChildren();
     ASTType getType();
     string getId(int idx);
     string getString(int idx);

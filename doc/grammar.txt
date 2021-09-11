@@ -43,7 +43,7 @@ localElement: ID (ID | STRING)
 switch: "switch" "(" switchCondition ")" "{" case+ "}"
 
 switchCondition: fieldPath
-    | fieldPath OPERATION (NUMBER | ID)
+//    | fieldPath OPERATION (NUMBER | ID)
 
 fieldPath: startsWith=("../" | "/")? field ("/" field)*
 

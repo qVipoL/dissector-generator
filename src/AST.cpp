@@ -17,6 +17,10 @@ AST::~AST() {
     }
 }
 
+vector<AST *> AST::getChildren() {
+    return _children;
+}
+
 ASTType AST::getType() {
     return _type;
 }

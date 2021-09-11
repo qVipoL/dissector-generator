@@ -12,8 +12,12 @@ class EnumInfo {
     vector<EnumElement *> _elements;
 
    public:
-    EnumInfo();
+    EnumInfo(string name, string type, int bytes);
     ~EnumInfo();
+
+    void addElement(EnumElement *element);
+    void setHasDefault(bool has_default);
+    void setDefaultString(string default_string);
 };
 
 #endif

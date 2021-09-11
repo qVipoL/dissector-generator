@@ -4,6 +4,6 @@
 enum EndianType {
     ENDIAN_BIG,
     ENDIAN_LITTLE
-}
+};
 
 #endif

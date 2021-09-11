@@ -97,14 +97,10 @@ AST *Parser::parseProtoDetails() {
     this->eatToken(TOKEN_SEPARATOR, ",");
     string protoDesc = _curr_token->getValue();
     this->eatToken(TOKEN_STRING);
-    this->eatToken(TOKEN_SEPARATOR, ",");
-    string protoAbbrv = _curr_token->getValue();
-    this->eatToken(TOKEN_STRING);
     this->eatToken(TOKEN_SEPARATOR, "}");
 
     node->addString(protoName);
     node->addString(protoDesc);
-    node->addString(protoAbbrv);
 
     return node;
 }
@@ -332,17 +328,18 @@ AST *Parser::parseField() {
 }
 
 AST *Parser::parseCase() {
-    AST *node = new AST(AST_CASE, _lexer->getLineN());
+    AST *node;
     ostringstream stringStream;
 
     if (_curr_token->getValue().compare("case") == 0) {
+        node = new AST(AST_CASE, _lexer->getLineN());
         this->eatToken(TOKEN_ID);
         node->addChild(this->parseCaseLabel());
     } else if (_curr_token->getValue().compare("default") == 0) {
+        node = new AST(AST_CASE_DEFAULT, _lexer->getLineN());
         this->eatToken(TOKEN_ID);
     } else {
-        stringStream << "[Line " << node->getLineN() << "] Unknown case decaration" << endl;
-        delete node;
+        stringStream << "[Line " << _lexer->getLineN() << "] Unknown case decaration" << endl;
         throw runtime_error(stringStream.str());
     }
 

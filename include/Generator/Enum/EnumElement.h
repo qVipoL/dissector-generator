@@ -8,7 +8,7 @@ class EnumElement {
     string _id, _value, _string;
 
    public:
-    EnumElement();
+    EnumElement(string id, string value, string string);
     ~EnumElement();
 };
 

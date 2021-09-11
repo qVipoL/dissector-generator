@@ -1,3 +1,4 @@
+#include "../include/Generator/Generator.h"
 #include "../include/Lexer/Lexer.h"
 #include "../include/Parser/Parser.h"
 #include "../include/util/io.h"
@@ -9,6 +10,7 @@ int main(int argc, char *argv[]) {
     Lexer *lexer;
     Parser *parser;
     AST *tree;
+    Generator *generator;
 
     if (argc < 2) {
         cout << "No file-name was passed." << endl;
@@ -21,8 +23,10 @@ int main(int argc, char *argv[]) {
         parser = new Parser(lexer);
 
         tree = parser->parse();
-
         tree->display(1);
+
+        generator = new Generator(tree);
+        generator->generateLua();
         delete tree;
     } catch (runtime_error err) {
         cout << err.what();

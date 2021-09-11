@@ -118,7 +118,7 @@ endian: // setting program endian
 protoDetails: // setting dissector details like: name & description
     entry: nothing
     exit: {
-        string name = ID(0), details = ID(1);
+        string name = STRING(0), details = STRING(1);
         this.protoDetails.set(name, new protoDissector(details)); 
     }
 

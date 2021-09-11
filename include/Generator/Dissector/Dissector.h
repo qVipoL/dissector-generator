@@ -5,11 +5,14 @@
 
 class Dissector {
    private:
-    string _description, _table, _table_entry;
+    string _details, _table, _table_entry;
 
    public:
-    Dissector();
+    Dissector(string details);
     ~Dissector();
+
+    void setTable(string table);
+    void setTableEntry(string table_entry);
 };
 
 #endif
