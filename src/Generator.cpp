@@ -16,24 +16,34 @@ void Generator::processNode(AST *node) {
     switch (node->getType()) {
         case AST_PROTO:
             this->processProto(node);
+            break;
         case AST_PROTO_DECL:
             this->processProtoDecl(node);
+            break;
         case AST_ENDIAN:
             this->processEndian(node);
+            break;
         case AST_PROTO_DETAILS:
             this->processProtoDetails(node);
+            break;
         case AST_DISSECTOR_ENTRY:
             this->processDissectorEntry(node);
+            break;
         case AST_DISSECTOR_TABLE:
             this->processDissectorTable(node);
+            break;
         case AST_ENUM:
             this->processEnum(node);
+            break;
         case AST_ENUM_BODY_DECL:
             this->processEnumBodyDecl(node);
+            break;
         case AST_ENUM_BODY_DEFAULT:
             this->processEnumBodyDefault(node);
+            break;
         case AST_STRUCT:
             this->processStruct(node);
+            break;
 
         default:
             throw runtime_error("AST Node type not supported.");
@@ -161,9 +171,9 @@ StructElement *Generator::processSwitch(AST *node) {
     string label_text;
     switchElement->setConditionPath(field_path);
 
-    node = node->getChildren()[1];
-
     for (AST *child : node->getChildren()) {
+        if (idx++ == 0) continue;
+
         SwitchCase *case_element = new SwitchCase();
         ostringstream stringStream;
 
@@ -178,10 +188,13 @@ StructElement *Generator::processSwitch(AST *node) {
             label_text = child->getChildren()[0]->getNumber(0);
         }
 
-        this->processCaseBody(case_element, child->getChildren()[1], label_text);
+        if (child->getType() == AST_CASE_DEFAULT)
+            this->processCaseBody(case_element, child->getChildren()[0], label_text);
+        else
+            this->processCaseBody(case_element, child->getChildren()[1], label_text);
 
-        case_element->setLocalName(stringStream.str());
         stringStream << _curr_struct->getName() << "_" << idx;
+        case_element->setLocalName(stringStream.str());
         switchElement->addCase(case_element);
     }
 
@@ -189,6 +202,8 @@ StructElement *Generator::processSwitch(AST *node) {
 }
 
 void Generator::processCaseBody(SwitchCase *case_element, AST *node, string label_text) {
+    node = node->getChildren()[0];
+    case_element->setTypeName(label_text);
     if (node->getType() != AST_LOCAL_ELEMENT) {
         case_element->setIsVoid(true);
     } else {
@@ -208,10 +223,26 @@ Generator::Generator(AST *tree) {
 }
 
 Generator::~Generator() {
+    map<string, Dissector *>::iterator di;
+    map<string, EnumInfo *>::iterator ei;
+    map<string, StructInfo *>::iterator si;
+
+    if (_curr_struct != NULL)
+        delete _curr_struct;
+    if (_curr_enum != NULL)
+        delete _curr_enum;
+
+    for (di = _dissectors.begin(); di != _dissectors.end(); di++)
+        delete di->second;
+
+    for (ei = _enums.begin(); ei != _enums.end(); ei++)
+        delete ei->second;
+
+    for (si = _structs.begin(); si != _structs.end(); si++)
+        delete si->second;
 }
 
 string Generator::generateLua() {
     this->process();
-    // throw runtime_error("not implemented");
-    return "abc0;";
+    return "";
 }

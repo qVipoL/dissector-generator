@@ -13,7 +13,7 @@ SwitchCase::~SwitchCase() {
 }
 
 void SwitchCase::setIsDefault(bool is_default) {
-    _is_default = _is_default;
+    _is_default = is_default;
 }
 
 void SwitchCase::setIsVoid(bool is_void) {

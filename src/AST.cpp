@@ -4,6 +4,10 @@
 
 AST::AST(ASTType type) {
     _type = type;
+    _ids = {""};
+    _strings = {""};
+    _numbers = {""};
+    _starts_with = {""};
 }
 
 AST::AST(ASTType type, int line_n) {
@@ -26,18 +30,22 @@ ASTType AST::getType() {
 }
 
 string AST::getId(int idx) {
+    if (_ids.size() == 0 || _ids.size() <= idx) return "";
     return _ids[idx];
 }
 
 string AST::getString(int idx) {
+    if (_strings.size() == 0 || _strings.size() <= idx) return "";
     return _strings[idx];
 }
 
 string AST::getNumber(int idx) {
+    if (_numbers.size() == 0 || _numbers.size() <= idx) return "";
     return _numbers[idx];
 }
 
 string AST::getStartsWith(int idx) {
+    if (_starts_with.size() == 0 || _starts_with.size() <= idx) return "";
     return _starts_with[idx];
 }
 

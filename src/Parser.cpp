@@ -151,6 +151,9 @@ AST *Parser::parseEnum() {
     this->eatToken(TOKEN_ID);
     this->eatToken(TOKEN_SEPARATOR, "{");
 
+    node->addId(enumId);
+    node->addId(enumType);
+
     node->addChild(this->parseEnumBody());
 
     while (_curr_token->getValue().compare(",") == 0) {
@@ -212,6 +215,8 @@ AST *Parser::parseStruct() {
     }
 
     this->eatToken(TOKEN_SEPARATOR, "}");
+
+    node->addId(structId);
 
     return node;
 }

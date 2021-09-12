@@ -8,8 +8,6 @@ StructInfo::StructInfo(string name) {
 }
 
 StructInfo::~StructInfo() {
-    delete _dissector;
-
     for (StructElement *element : _elements)
         delete element;
 }
