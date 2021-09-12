@@ -23,17 +23,25 @@ int main(int argc, char *argv[]) {
         parser = new Parser(lexer);
 
         tree = parser->parse();
-        tree->display(1);
+        // tree->display(1);
 
         generator = new Generator(tree);
-        generator->generateLua();
-        delete tree;
+        cout << "Lua code:\n"
+             << generator->generateLua() << endl;
     } catch (runtime_error err) {
-        cout << err.what();
+        cout << err.what() << endl;
         error_code = EXIT_FAILURE;
     }
 
-    delete parser;
-    delete lexer;
+cleanup:
+    if (generator != NULL)
+        delete generator;
+    if (parser != NULL)
+        delete parser;
+    if (lexer != NULL)
+        delete lexer;
+    if (tree != NULL)
+        delete tree;
+
     return error_code;
 }

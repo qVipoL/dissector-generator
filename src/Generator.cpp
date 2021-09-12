@@ -5,7 +5,7 @@
 void Generator::process() {
     if (!_tree) throw runtime_error("Starting node not found.");
 
-    processNode(_tree);
+    this->processNode(_tree);
 
     cout << "done" << endl;
 }
@@ -52,12 +52,12 @@ void Generator::processNode(AST *node) {
 
 void Generator::processProto(AST *node) {
     for (AST *child : node->getChildren())
-        processNode(child);
+        this->processNode(child);
 }
 
 void Generator::processProtoDecl(AST *node) {
     for (AST *child : node->getChildren())
-        processNode(child);
+        this->processNode(child);
 }
 
 void Generator::processEndian(AST *node) {
@@ -118,7 +118,7 @@ void Generator::processEnum(AST *node) {
     _curr_enum = new EnumInfo(name, type, bytes);
 
     for (AST *child : node->getChildren())
-        processNode(child);
+        this->processNode(child);
 
     _enums[name] = _curr_enum;
     _curr_enum = NULL;
@@ -139,7 +139,7 @@ void Generator::processStruct(AST *node) {
     _curr_struct = new StructInfo(name);
 
     for (AST *child : node->getChildren())
-        processStructChild(child);
+        this->processStructChild(child);
 
     _structs[name] = _curr_struct;
     _curr_struct = NULL;
@@ -147,9 +147,9 @@ void Generator::processStruct(AST *node) {
 
 void Generator::processStructChild(AST *node) {
     if (node->getType() == AST_STRUCT_BODY_LOCAL) {
-        _curr_struct->addElement(processLocalElement(node->getChildren()[0]));
+        _curr_struct->addElement(this->processLocalElement(node->getChildren()[0]));
     } else {
-        _curr_struct->addElement(processSwitch(node->getChildren()[0]));
+        _curr_struct->addElement(this->processSwitch(node->getChildren()[0]));
     }
 }
 
