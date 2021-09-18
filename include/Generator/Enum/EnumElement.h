@@ -10,6 +10,10 @@ class EnumElement {
    public:
     EnumElement(string id, string value, string string);
     ~EnumElement();
+
+    string getId();
+    string getValue();
+    string getString();
 };
 
 #endif

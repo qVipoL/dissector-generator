@@ -5,7 +5,7 @@
 
 class Dissector {
    private:
-    string _details, _table, _table_entry;
+    string _details, _table, _table_entry, _struct_entry;
 
    public:
     Dissector(string details);
@@ -13,6 +13,10 @@ class Dissector {
 
     void setTable(string table);
     void setTableEntry(string table_entry);
+    void setStructEntry(string struct_entry);
+
+    string getDetails();
+    string getStructEntry();
 };
 
 #endif

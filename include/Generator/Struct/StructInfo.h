@@ -3,17 +3,23 @@
 
 #include "../../util/std_include.h"
 #include "../Dissector/Dissector.h"
+#include "../Generator.h"
 #include "StructElement.h"
+
+class Generator;
+class StructElement;
 
 class StructInfo {
    private:
     string _name;
-    bool _is_top_level, _is_referances_setup;
+    bool _is_top_level, _is_referances_setup, _is_referenced, _missing_checked;
     Dissector *_dissector;
+    Generator *_generator;
     vector<StructElement *> _elements;
+    vector<FieldPath *> _local_vars, _needed_by_below, _local_needed_by_above;
 
    public:
-    StructInfo(string name);
+    StructInfo(string name, Generator *generator);
     ~StructInfo();
 
     void setIsTopLevel(bool is_top_level);
@@ -21,6 +27,15 @@ class StructInfo {
     void addElement(StructElement *element);
 
     string getName();
+
+    bool checkMissing(vector<StructInfo *> struct_stack);
+    bool checkPathIsBaseType(FieldPath *path, vector<StructInfo *> struct_stack);
+
+    StructElement *getElement(string id);
+    void setNeededInChildren(FieldPath *path);
+    void setNeededInChildrenRec(FieldPath *sub_path, FieldPath *path);
+
+    void setupReferences(vector<FieldPath *> needed_paths);
 };
 
 #endif

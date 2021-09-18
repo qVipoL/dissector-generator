@@ -8,6 +8,7 @@
 class FieldPath {
    private:
     PathType _path_type;
+    string _type;
     FieldPath *_next;
     string _component_name;
 
@@ -16,10 +17,18 @@ class FieldPath {
     FieldPath(AST *node);
     ~FieldPath();
 
+    void setType(string type);
     void setNext(FieldPath *next);
     void setComponentName(string component_name);
+    string getComponentName();
 
     FieldPath *getNext();
+    PathType getPathType();
+
+    void addIfNotContains(vector<FieldPath *> *list);
+    bool equals(FieldPath *path);
+    bool isOneLevel();
+    void removeRelativeParent();
 };
 
 #endif

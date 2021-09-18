@@ -18,6 +18,10 @@ class EnumInfo {
     void addElement(EnumElement *element);
     void setHasDefault(bool has_default);
     void setDefaultString(string default_string);
+    string getType();
+    bool isBaseType();
+
+    vector<EnumElement *> getElements();
 };
 
 #endif

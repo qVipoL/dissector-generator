@@ -6,8 +6,6 @@ void Generator::process() {
     if (!_tree) throw runtime_error("Starting node not found.");
 
     this->processNode(_tree);
-
-    cout << "done" << endl;
 }
 
 void Generator::processNode(AST *node) {
@@ -87,8 +85,10 @@ void Generator::processDissectorEntry(AST *node) {
         throw runtime_error(stringStream.str());
     }
 
+    dissector->setStructEntry(structName);
     packetStruct->setIsTopLevel(true);
     packetStruct->setDissector(dissector);
+    _dissector_struct = packetStruct;
 }
 
 void Generator::processDissectorTable(AST *node) {
@@ -136,7 +136,7 @@ void Generator::processEnumBodyDefault(AST *node) {
 
 void Generator::processStruct(AST *node) {
     string name = node->getId(0);
-    _curr_struct = new StructInfo(name);
+    _curr_struct = new StructInfo(name, this);
 
     for (AST *child : node->getChildren())
         this->processStructChild(child);
@@ -160,6 +160,8 @@ StructElement *Generator::processLocalElement(AST *node) {
 
     localElement->setId(id);
     localElement->setType(type);
+    localElement->setGenerator(this);
+    localElement->setParent(_curr_struct);
 
     return localElement;
 }
@@ -169,12 +171,15 @@ StructElement *Generator::processSwitch(AST *node) {
     FieldPath *field_path = this->processFieldPath(node->getChildren()[0]);
     StructElement *switchElement = new StructElement(TYPE_SWITCH);
     string label_text;
+
     switchElement->setConditionPath(field_path);
+    switchElement->setGenerator(this);
+    switchElement->setParent(_curr_struct);
 
     for (AST *child : node->getChildren()) {
         if (idx++ == 0) continue;
 
-        SwitchCase *case_element = new SwitchCase();
+        SwitchCase *case_element = new SwitchCase(this);
         ostringstream stringStream;
 
         if (child->getType() == AST_CASE_DEFAULT) {
@@ -202,11 +207,11 @@ StructElement *Generator::processSwitch(AST *node) {
 }
 
 void Generator::processCaseBody(SwitchCase *case_element, AST *node, string label_text) {
-    node = node->getChildren()[0];
     case_element->setTypeName(label_text);
-    if (node->getType() != AST_LOCAL_ELEMENT) {
+    if (node->getId(0).compare("void") == 0) {
         case_element->setIsVoid(true);
     } else {
+        node = node->getChildren()[0];
         StructElement *local_element = this->processLocalElement(node);
         case_element->addElement(local_element);
     }
@@ -214,6 +219,118 @@ void Generator::processCaseBody(SwitchCase *case_element, AST *node, string labe
 
 FieldPath *Generator::processFieldPath(AST *node) {
     return new FieldPath(node->getChildren()[0]);
+}
+
+string Generator::generate() {
+    if (!this->isMissingDeclarations()) {
+        this->setupReferences();
+        // this->setupItemReferences();
+
+        return this->generateCode();
+    }
+
+    throw runtime_error("Error: Missing struct declarations.");
+}
+
+bool Generator::isMissingDeclarations() {
+    vector<StructInfo *> struct_stack;
+    bool missing = false;
+
+    if (_dissector_struct == NULL || _dissector_struct->checkMissing(struct_stack))
+        missing = true;
+
+    return missing;
+}
+
+void Generator::setupReferences() {
+    vector<FieldPath *> needed;
+
+    _dissector_struct->setupReferences(needed);
+
+    if (needed.size() > 0)
+        semantic_error = true;
+}
+
+string Generator::generateDissector(string name) {
+    ostringstream stringStream;
+
+    stringStream << name << "_proto = Proto(";
+    stringStream << "\"" << name << "\", ";
+    stringStream << "\"" << _dissectors[name]->getDetails() << "\")" << endl;
+
+    return stringStream.str();
+}
+
+string Generator::generateEnum(string name) {
+    ostringstream stringStream;
+    EnumInfo *enum_info = _enums[name];
+
+    stringStream << "local " << name << " = {";
+
+    for (EnumElement *element : enum_info->getElements()) {
+        stringStream << "  [" << element->getValue() << "] = ";
+        stringStream << element->getString() << ",";
+    }
+
+    stringStream << "}" << endl;
+
+    for (EnumElement *element : enum_info->getElements())
+        stringStream << "local " << element->getId() << " = " << element->getValue();
+
+    stringStream << endl;
+
+    return stringStream.str();
+}
+
+string Generator::generateProtoFields(string name) {
+    ostringstream stringStream;
+    Dissector *dissector = _dissectors[name];
+    vector<string> struct_left, field_names, expert_names;
+    string struct_name;
+    StructInfo *curr_struct;
+
+    struct_left.push_back(dissector->getStructEntry());
+    while (struct_left.size() > 0) {
+        struct_name = struct_left[struct_left.size() - 1];
+        struct_left.pop_back();
+        curr_struct = _structs[struct_name];
+
+        // stringStream << curr_struct->generateLuaFields();
+    }
+    stringStream << endl;
+
+    stringStream << name << "_proto.fields = {";
+    for (string field : field_names)
+        stringStream << "  " << field << ",";
+    stringStream << "}" << endl;
+
+    stringStream << name << "_proto.experts = {";
+    for (string expert : expert_names)
+        stringStream << "  " << expert << ",";
+    stringStream << "}" << endl;
+
+    return stringStream.str();
+}
+
+string Generator::generateCode() {
+    ostringstream stringStream;
+    map<string, Dissector *>::iterator di;
+    map<string, EnumInfo *>::iterator ei;
+    map<string, StructInfo *>::iterator si;
+
+    stringStream << "=== LUA Dissector ===" << endl;
+    stringStream << endl;
+
+    for (di = _dissectors.begin(); di != _dissectors.end(); di++)
+        stringStream << generateDissector(di->first);
+
+    for (ei = _enums.begin(); ei != _enums.end(); ei++)
+        stringStream << generateEnum(ei->first);
+
+    for (di = _dissectors.begin(); di != _dissectors.end(); di++)
+        stringStream << generateProtoFields(di->first);
+
+    return stringStream.str();
 }
 
 /* Public */
@@ -242,7 +359,15 @@ Generator::~Generator() {
         delete si->second;
 }
 
+StructInfo *Generator::getStruct(string struct_name) {
+    return _structs[struct_name];
+}
+
+EnumInfo *Generator::getEnum(string enum_name) {
+    return _enums[enum_name];
+}
+
 string Generator::generateLua() {
     this->process();
-    return "";
+    return this->generate();
 }

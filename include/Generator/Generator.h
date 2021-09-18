@@ -7,16 +7,23 @@
 #include "Endian/EndianType.h"
 #include "Enum/EnumInfo.h"
 #include "Struct/FieldPath.h"
+#include "Struct/StructElement.h"
 #include "Struct/StructInfo.h"
+
+class StructInfo;
+class SwitchCase;
 
 class Generator {
    private:
     AST *_tree;
 
+    bool semantic_error;
+
     EndianType _endian_type;
     map<string, Dissector *> _dissectors;
     map<string, EnumInfo *> _enums;
     map<string, StructInfo *> _structs;
+    StructInfo *_dissector_struct;
 
     EnumInfo *_curr_enum;
     StructInfo *_curr_struct;
@@ -45,9 +52,22 @@ class Generator {
     FieldPath *processFieldPath(AST *node);
     void processCaseBody(SwitchCase *case_element, AST *node, string label_text);
 
+    string generateDissector(string name);
+    string generateEnum(string name);
+    string generateProtoFields(string name);
+
+    string generate();
+    bool isMissingDeclarations();
+    void setupReferences();
+    void setupItemReferences();
+    string generateCode();
+
    public:
     Generator(AST *tree);
     ~Generator();
+
+    StructInfo *getStruct(string struct_name);
+    EnumInfo *getEnum(string enum_name);
 
     string generateLua();
 };

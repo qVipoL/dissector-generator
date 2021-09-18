@@ -10,3 +10,15 @@ EnumElement::EnumElement(string id, string value, string string) {
 
 EnumElement::~EnumElement() {
 }
+
+string EnumElement::getId() {
+    return _id;
+}
+
+string EnumElement::getValue() {
+    return _value;
+}
+
+string EnumElement::getString() {
+    return _string;
+}

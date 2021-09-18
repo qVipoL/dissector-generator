@@ -46,6 +46,10 @@ FieldPath::~FieldPath() {
     }
 }
 
+void FieldPath::setType(string type) {
+    _type = type;
+}
+
 void FieldPath::setNext(FieldPath *next) {
     _next = next;
 }
@@ -54,6 +58,55 @@ void FieldPath::setComponentName(string component_name) {
     _component_name = component_name;
 }
 
+string FieldPath::getComponentName() {
+    return _component_name;
+}
+
 FieldPath *FieldPath::getNext() {
     return _next;
+}
+
+PathType FieldPath::getPathType() {
+    return _path_type;
+}
+
+bool FieldPath::equals(FieldPath *path) {
+    if (path == NULL) return false;
+
+    if (_path_type != path->getPathType()) return false;
+
+    FieldPath *temp = this, *temp2 = path;
+
+    while (temp != NULL) {
+        if (temp->getComponentName().compare(temp2->getComponentName()) != 0)
+            return false;
+
+        temp = temp->getNext();
+        temp2 = temp2->getNext();
+
+        if (temp != NULL || temp2 == NULL)
+            return false;
+    }
+
+    return temp2 != NULL;
+}
+
+bool FieldPath::isOneLevel() {
+    return (_path_type != RELATIVE_PARENT && _next == NULL);
+}
+
+void FieldPath::addIfNotContains(vector<FieldPath *> *list) {
+    if (list == NULL) return;
+
+    for (FieldPath *path : (*list)) {
+        if (path->equals(this)) {
+            return;
+        }
+    }
+
+    list->push_back(this);
+}
+
+void FieldPath::removeRelativeParent() {
+    _path_type = RELATIVE_PARENT;
 }
