@@ -55,6 +55,8 @@ class Generator {
     string generateDissector(string name);
     string generateEnum(string name);
     string generateProtoFields(string name);
+    string Generator::generateProtoStructs(string name);
+    string generateProtoEnding(string name);
 
     string generate();
     bool isMissingDeclarations();

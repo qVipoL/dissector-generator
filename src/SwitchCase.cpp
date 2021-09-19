@@ -90,3 +90,65 @@ vector<FieldPath *> SwitchCase::getNeeded() {
 
     return needed;
 }
+
+vector<FieldPath *> SwitchCase::getItemNeeded() {
+    vector<FieldPath *> needed;
+
+    for (StructElement *element : _elements) {
+        vector<FieldPath *> local_needed = element->getItemNeeded();
+
+        for (FieldPath *local : local_needed)
+            needed.push_back(local);
+    }
+
+    return needed;
+}
+
+string SwitchCase::getType() {
+    EnumInfo *enum_info = _generator->getEnum(_type_name);
+
+    if (enum_info != NULL)
+        return enum_info->getType();
+
+    return _type_name;
+}
+
+string SwitchCase::generateLuaFieldsDef(string field_prefix, string search_prefix, vector<string> *structs_left,
+                                        vector<string> *field_names, vector<string> *expert_names) {
+    ostringstream stringStream;
+    if (_is_void) return "";
+
+    stringStream << "";
+
+    if (_elements.size() > 0) {
+        if (_case_value.compare("") == 0)
+            _case_value = "null";
+        string full_name = field_prefix + "_" + _case_value;
+        string new_search = search_prefix + "." + _case_value;
+
+        for (StructElement *element : _elements) {
+            stringStream << element->generateLuaFieldsDef(full_name, new_search, structs_left, field_names, expert_names);
+        }
+
+        return stringStream.str();
+    }
+
+    if (this->isBaseType()) {
+        string field_name = "f_" + field_prefix + _display_name;
+
+        stringStream << "local " << field_name << " = ProtoField.";
+        stringStream << getLuaType(this->getType()) << "(";
+        stringStream << "\"" << search_prefix << "." << _case_value << ".";
+        stringStream << _display_name << "\", ";
+        stringStream << "\"" << _display_name << "\", ";
+        stringStream << getLuaDisplayType(this->getType()) << endl;
+
+        if (_generator->getEnum(_type_name) != NULL)
+            stringStream << ", " << _type_name;
+
+        stringStream << ")" << endl;
+        field_names->push_back(stringStream.str());
+    }
+
+    return stringStream.str();
+}

@@ -4,5 +4,7 @@
 #include "std_include.h"
 
 int typeIndex(string type);
+string getLuaType(string type);
+string getLuaDisplayType(string type);
 
 #endif

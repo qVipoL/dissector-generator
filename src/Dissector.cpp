@@ -25,6 +25,14 @@ string Dissector::getDetails() {
     return _details;
 }
 
+string Dissector::getTable() {
+    return _table;
+}
+
+string Dissector::getTableEntry() {
+    return _table_entry;
+}
+
 string Dissector::getStructEntry() {
     return _struct_entry;
 }

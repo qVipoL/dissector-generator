@@ -24,6 +24,7 @@ class FieldPath {
 
     FieldPath *getNext();
     PathType getPathType();
+    string getParamName();
 
     void addIfNotContains(vector<FieldPath *> *list);
     bool equals(FieldPath *path);

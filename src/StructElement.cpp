@@ -116,3 +116,64 @@ vector<FieldPath *> StructElement::getNeeded() {
 
     return needed;
 }
+
+vector<FieldPath *> StructElement::getItemNeeded() {
+    vector<FieldPath *> needed;
+
+    if (_element_type == TYPE_LOCAL_ELEMENT) {
+        if (this->isStruct()) {
+            StructInfo *cur_struct = _generator->getStruct(_type);
+            cur_struct->setupItemReferences(needed);
+        }
+    } else {
+        for (SwitchCase *case_element : _cases) {
+            vector<FieldPath *> items = case_element->getItemNeeded();
+
+            for (FieldPath *item : items)
+                needed.push_back(item);
+        }
+    }
+
+    return needed;
+}
+
+string StructElement::generateLuaFieldsDef(string field_prefix, string search_prefix, vector<string> *structs_left,
+                                           vector<string> *field_names, vector<string> *expert_names) {
+    ostringstream stringStream;
+
+    if (_element_type == TYPE_LOCAL_ELEMENT) {
+        if (this->isStruct()) {
+            StructInfo *struct_info = _generator->getStruct(_type);
+            string new_search_prefix = field_prefix + "." + _id;
+
+            stringStream << struct_info->generateLuaFields(new_search_prefix, structs_left, field_names, expert_names);
+        } else {
+            string type;
+
+            string field_name = "f_" + field_prefix + "_" + _id;
+
+            if (_generator->getEnum(_type))
+                type = _generator->getEnum(_type)->getType();
+            else
+                type = _type;
+
+            stringStream << "local " << field_name << " = ProtoField.";
+            stringStream << getLuaType(type) << "(";
+            stringStream << "\"" << search_prefix << "." << _id << "\"";
+            stringStream << ", \"" << _id << "\", " << getLuaDisplayType(type);
+
+            if (_generator->getEnum(_type))
+                stringStream << ", " << _type;
+
+            stringStream << ")" << endl;
+
+            field_names->push_back(field_name);
+        }
+    } else {
+        for (SwitchCase *case_element : _cases) {
+            stringStream << case_element->generateLuaFieldsDef(field_prefix, search_prefix, structs_left, field_names, expert_names);
+        }
+    }
+
+    return stringStream.str();
+}

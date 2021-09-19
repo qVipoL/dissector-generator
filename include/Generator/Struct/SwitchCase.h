@@ -30,9 +30,13 @@ class SwitchCase {
     void addElement(StructElement *element);
 
     vector<FieldPath *> getNeeded();
+    vector<FieldPath *> getItemNeeded();
 
     bool isBaseType();
     bool checkMissing(vector<StructInfo *> struct_stack, string name);
+    string getType();
+    string generateLuaFieldsDef(string field_prefix, string search_prefix, vector<string> *structs_left,
+                                vector<string> *field_names, vector<string> *expert_names);
 };
 
 #endif

@@ -16,6 +16,8 @@ class Dissector {
     void setStructEntry(string struct_entry);
 
     string getDetails();
+    string getTable();
+    string getTableEntry();
     string getStructEntry();
 };
 

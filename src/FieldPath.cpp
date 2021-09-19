@@ -110,3 +110,19 @@ void FieldPath::addIfNotContains(vector<FieldPath *> *list) {
 void FieldPath::removeRelativeParent() {
     _path_type = RELATIVE_PARENT;
 }
+
+string FieldPath::getParamName() {
+    FieldPath *comp = this;
+    string name;
+
+    while (comp->getNext() != NULL) {
+        if (name.compare("") == 0)
+            name = comp->getComponentName();
+        else
+            name = name + "_" + comp->getComponentName();
+
+        comp = comp->getNext();
+    }
+
+    return name.compare("") == 0 ? comp->getComponentName() : name + "_" + comp->getComponentName();
+}

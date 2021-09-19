@@ -224,7 +224,10 @@ FieldPath *Generator::processFieldPath(AST *node) {
 string Generator::generate() {
     if (!this->isMissingDeclarations()) {
         this->setupReferences();
-        // this->setupItemReferences();
+
+        this->setupItemReferences();
+
+        if (semantic_error) throw runtime_error("Semantic error...");
 
         return this->generateCode();
     }
@@ -251,12 +254,22 @@ void Generator::setupReferences() {
         semantic_error = true;
 }
 
+void Generator::setupItemReferences() {
+    vector<FieldPath *> needed_items;
+
+    _dissector_struct->setupItemReferences(needed_items);
+
+    if (needed_items.size() > 0)
+        semantic_error = true;
+}
+
 string Generator::generateDissector(string name) {
     ostringstream stringStream;
 
     stringStream << name << "_proto = Proto(";
     stringStream << "\"" << name << "\", ";
     stringStream << "\"" << _dissectors[name]->getDetails() << "\")" << endl;
+    stringStream << endl;
 
     return stringStream.str();
 }
@@ -265,17 +278,18 @@ string Generator::generateEnum(string name) {
     ostringstream stringStream;
     EnumInfo *enum_info = _enums[name];
 
-    stringStream << "local " << name << " = {";
+    stringStream << "local " << name << " = {" << endl;
 
     for (EnumElement *element : enum_info->getElements()) {
-        stringStream << "  [" << element->getValue() << "] = ";
-        stringStream << element->getString() << ",";
+        stringStream << " [" << element->getValue() << "] = ";
+        stringStream << "\"" << element->getString() << "\"," << endl;
     }
 
-    stringStream << "}" << endl;
+    stringStream << "}" << endl
+                 << endl;
 
     for (EnumElement *element : enum_info->getElements())
-        stringStream << "local " << element->getId() << " = " << element->getValue();
+        stringStream << "local " << element->getId() << " = " << element->getValue() << endl;
 
     stringStream << endl;
 
@@ -285,29 +299,57 @@ string Generator::generateEnum(string name) {
 string Generator::generateProtoFields(string name) {
     ostringstream stringStream;
     Dissector *dissector = _dissectors[name];
-    vector<string> struct_left, field_names, expert_names;
+    vector<string> structs_left, field_names, expert_names;
     string struct_name;
     StructInfo *curr_struct;
 
-    struct_left.push_back(dissector->getStructEntry());
-    while (struct_left.size() > 0) {
-        struct_name = struct_left[struct_left.size() - 1];
-        struct_left.pop_back();
-        curr_struct = _structs[struct_name];
+    structs_left.push_back(dissector->getStructEntry());
 
-        // stringStream << curr_struct->generateLuaFields();
+    while (structs_left.size() > 0) {
+        struct_name = structs_left[0];
+        curr_struct = _structs[struct_name];
+        structs_left.erase(next(structs_left.begin(), 0));
+
+        stringStream << curr_struct->generateLuaFields(name, &structs_left, &field_names, &expert_names);
     }
+
     stringStream << endl;
 
-    stringStream << name << "_proto.fields = {";
+    stringStream << name << "_proto.fields = {" << endl;
     for (string field : field_names)
-        stringStream << "  " << field << ",";
-    stringStream << "}" << endl;
+        stringStream << "  " << field << "," << endl;
+    stringStream << "}" << endl
+                 << endl;
 
-    stringStream << name << "_proto.experts = {";
-    for (string expert : expert_names)
-        stringStream << "  " << expert << ",";
-    stringStream << "}" << endl;
+    return stringStream.str();
+}
+
+string Generator::generateProtoStructs(string name) {
+    ostringstream stringStream;
+    Dissector *dissector = _dissectors[name];
+    vector<string> structs_left;
+    StructInfo *curr_struct;
+
+    structs_left.push_back(dissector->getStructEntry());
+
+    while (structs_left.size() > 0) {
+        curr_struct = _structs[structs_left[0]];
+        structs_left.erase(next(structs_left.begin(), 0));
+
+        stringStream << curr_struct->generateLuaStructDissect(name, &structs_left);
+    }
+
+    return stringStream.str();
+}
+
+string Generator::generateProtoEnding(string name) {
+    Dissector *proto = _dissectors[name];
+    ostringstream stringStream;
+
+    stringStream << "ent_table = Dissector.get(" << proto->getTable() << ")" << endl;
+    stringStream << "ent_table:add("
+                 << "\"" << proto->getTableEntry() << "\"";
+    stringStream << ", " << name << "_proto)" << endl;
 
     return stringStream.str();
 }
@@ -318,17 +360,21 @@ string Generator::generateCode() {
     map<string, EnumInfo *>::iterator ei;
     map<string, StructInfo *>::iterator si;
 
+    stringStream << endl;
     stringStream << "=== LUA Dissector ===" << endl;
     stringStream << endl;
 
     for (di = _dissectors.begin(); di != _dissectors.end(); di++)
-        stringStream << generateDissector(di->first);
+        stringStream << this->generateDissector(di->first);
 
     for (ei = _enums.begin(); ei != _enums.end(); ei++)
-        stringStream << generateEnum(ei->first);
+        stringStream << this->generateEnum(ei->first);
 
-    for (di = _dissectors.begin(); di != _dissectors.end(); di++)
-        stringStream << generateProtoFields(di->first);
+    for (di = _dissectors.begin(); di != _dissectors.end(); di++) {
+        stringStream << this->generateProtoFields(di->first);
+        stringStream << this->generateProtoStructs(di->first);
+        stringStream << this->generateProtoEnding(di->first);
+    }
 
     return stringStream.str();
 }
