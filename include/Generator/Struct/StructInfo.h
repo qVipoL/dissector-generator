@@ -38,6 +38,11 @@ class StructInfo {
 
     bool isLocalVar(FieldPath *path);
     bool isLocalItemVar(FieldPath *path);
+    bool isLocalVar(string name);
+    bool isNeededVar(string name);
+    string generateLuaDissectCall(string indent, string tree, string label);
+    FieldPath *getLocalVar(string name);
+    FieldPath *getNeeded(string name);
 
     void setupReferences(vector<FieldPath *> needed_paths);
     void setupItemReferences(vector<FieldPath *> needed_items);

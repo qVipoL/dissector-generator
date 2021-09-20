@@ -177,3 +177,83 @@ string StructElement::generateLuaFieldsDef(string field_prefix, string search_pr
 
     return stringStream.str();
 }
+
+string StructElement::generateLuaStructDissect(string tree, string proto_name, string field_prefix, vector<string> *structs_left) {
+    ostringstream stringStream;
+
+    if (_element_type == TYPE_LOCAL_ELEMENT) {
+        if (this->isStruct()) {
+            StructInfo *struct_info = _generator->getStruct(_type);
+            proto_name = "_" + _id;
+            stringStream << struct_info->generateLuaDissectCall("    ", tree, "\"" + _id + "\"");
+            structs_left->push_back(_type);
+        } else if (this->isBaseType()) {
+            StructInfo *struct_info = _generator->getStruct(proto_name);
+
+            if (struct_info->isLocalVar(_id)) {
+                FieldPath *path = struct_info->getLocalVar(_id);
+                string type;
+
+                if (_generator->getEnum(_type))
+                    type = _generator->getEnum(_type)->getType();
+                else
+                    type = _type;
+
+                stringStream << "    local l_" << path->getParamName() << " = buffer(offset, ";
+                stringStream << baseTypeLenString(type) << "):uint()" << endl;
+            } else if (struct_info->isNeededVar(_id)) {
+                string type;
+
+                if (_generator->getEnum(_type))
+                    type = _generator->getEnum(_type)->getType();
+                else
+                    type = _type;
+
+                FieldPath *path = struct_info->getNeeded(_id);
+                stringStream << "    local l_" << path->getParamName() << " = buffer(offset, ";
+                stringStream << baseTypeLenString(type) << "):uint()" << endl;
+            }
+
+            string type;
+
+            if (_generator->getEnum(_type))
+                type = _generator->getEnum(_type)->getType();
+            else
+                type = _type;
+
+            stringStream << "    t_" << proto_name << ":" << getLuaAdder(type, _generator->getEndianType());
+            stringStream << "(f_" << field_prefix << "_" << _id;
+            stringStream << ", buffer(offset, " << baseTypeLenString(type) << "))" << endl;
+
+            stringStream << "    offset = offset + " << baseTypeLenString(type) << endl;
+        }
+    } else {
+        string control_var = _condition_path->getParamName();
+        bool is_first = true;
+        SwitchCase *default_case = NULL;
+
+        for (SwitchCase *case_element : _cases) {
+            if (case_element->getIsDefault())
+                default_case = case_element;
+            else {
+                bool is_last = false;
+
+                for (SwitchCase *tmp : _cases)
+                    if (tmp == case_element)
+                        is_last = true;
+
+                stringStream << case_element->generateLuaStructDissect(tree, proto_name, field_prefix, control_var, structs_left, is_first, is_last);
+
+                if (is_first)
+                    is_first = false;
+            }
+        }
+
+        if (default_case != NULL)
+            stringStream << default_case->generateLuaStructDissect(tree, proto_name, field_prefix, "", structs_left, false, true);
+
+        stringStream << endl;
+    }
+
+    return stringStream.str();
+}

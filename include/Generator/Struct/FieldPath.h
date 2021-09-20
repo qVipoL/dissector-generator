@@ -30,6 +30,8 @@ class FieldPath {
     bool equals(FieldPath *path);
     bool isOneLevel();
     void removeRelativeParent();
+    bool equals(string name);
+    bool equalsLast(string name);
 };
 
 #endif

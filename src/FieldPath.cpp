@@ -126,3 +126,20 @@ string FieldPath::getParamName() {
 
     return name.compare("") == 0 ? comp->getComponentName() : name + "_" + comp->getComponentName();
 }
+
+bool FieldPath::equals(string name) {
+    if (_next != NULL) return false;
+
+    if (_path_type != RELATIVE_CURRENT) return false;
+
+    return name.compare(_component_name) == 0;
+}
+
+bool FieldPath::equalsLast(string name) {
+    FieldPath *last = this;
+
+    while (last->getNext() != NULL)
+        last = last->getNext();
+
+    return name.compare(last->getComponentName()) == 0;
+}

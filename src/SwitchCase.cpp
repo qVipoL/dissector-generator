@@ -152,3 +152,32 @@ string SwitchCase::generateLuaFieldsDef(string field_prefix, string search_prefi
 
     return stringStream.str();
 }
+
+bool SwitchCase::getIsDefault() {
+    return _is_default;
+}
+
+string SwitchCase::generateLuaStructDissect(string tree, string cont_name, string prefix_name, string control_var,
+                                            vector<string> *structs_left, bool is_first, bool is_last) {
+    ostringstream stringStream;
+
+    if (is_first)
+        stringStream << "    if " << control_var << " == " << _case_value << " then" << endl;
+    else if (_is_default)
+        stringStream << "    else " << endl;
+    else
+        stringStream << "    elseif " << control_var << " == " << _case_value << " then" << endl;
+
+    string local_prefix_name = prefix_name + "_" + _case_value;
+
+    if (_is_void) {
+    } else if (_elements.size() > 0) {
+        for (StructElement *element : _elements)
+            stringStream << element->generateLuaStructDissect(tree, cont_name, local_prefix_name, structs_left);
+    }
+
+    if (is_last)
+        stringStream << "    end";
+
+    return stringStream.str();
+}

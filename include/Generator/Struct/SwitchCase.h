@@ -32,11 +32,14 @@ class SwitchCase {
     vector<FieldPath *> getNeeded();
     vector<FieldPath *> getItemNeeded();
 
+    bool getIsDefault();
     bool isBaseType();
     bool checkMissing(vector<StructInfo *> struct_stack, string name);
     string getType();
     string generateLuaFieldsDef(string field_prefix, string search_prefix, vector<string> *structs_left,
                                 vector<string> *field_names, vector<string> *expert_names);
+    string generateLuaStructDissect(string tree, string cont_name, string prefix_name, string control_var,
+                                    vector<string> *structs_left, bool is_first, bool is_last);
 };
 
 #endif

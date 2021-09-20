@@ -55,7 +55,7 @@ class Generator {
     string generateDissector(string name);
     string generateEnum(string name);
     string generateProtoFields(string name);
-    string Generator::generateProtoStructs(string name);
+    string generateProtoStructs(string name);
     string generateProtoEnding(string name);
 
     string generate();
@@ -72,6 +72,7 @@ class Generator {
     EnumInfo *getEnum(string enum_name);
 
     string generateLua();
+    EndianType getEndianType();
 };
 
 #endif

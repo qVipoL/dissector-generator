@@ -417,3 +417,7 @@ string Generator::generateLua() {
     this->process();
     return this->generate();
 }
+
+EndianType Generator::getEndianType() {
+    return _endian_type;
+}

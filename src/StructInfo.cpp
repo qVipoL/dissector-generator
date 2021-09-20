@@ -266,9 +266,32 @@ bool StructInfo::isLocalItemVar(FieldPath *path) {
     return false;
 }
 
+string StructInfo::generateLuaDissectCall(string indent, string tree, string label) {
+    ostringstream stringStream;
+
+    stringStream << indent << "    offset";
+
+    for (FieldPath *path : _local_needed_by_above)
+        stringStream << ", l_" << path->getParamName();
+
+    stringStream << " = dissect_" << _name << "(buffer, pinfo, " << tree << ", offset, " << label;
+
+    for (FieldPath *path : _needed_by_below)
+        if (!this->isLocalVar(path))
+            stringStream << ", l_" << path->getParamName();
+
+    for (FieldPath *path : _items_needed_by_below)
+        if (!this->isLocalItemVar(path))
+            stringStream << ", i_" << path->getParamName();
+
+    stringStream << ")" << endl;
+
+    return stringStream.str();
+}
+
 string StructInfo::generateLuaStructDissect(string name, vector<string> *structs_left) {
     ostringstream stringStream;
-    if (!_is_referenced) return;
+    if (!_is_referenced) return "";
 
     if (_is_top_level) {
         stringStream << "function " << name << "_proto.dissector(buffer, pinfo, tree)" << endl
@@ -309,10 +332,10 @@ string StructInfo::generateLuaStructDissect(string name, vector<string> *structs
         if (element->isStruct()) {
             StructInfo *struct_info = _generator->getStruct(element->getType());
 
-            // stringStream << struct_info->generateLuaDissectCall("    ", tree, "\"" + name + "\"");
+            stringStream << struct_info->generateLuaDissectCall("    ", tree, "\"" + name + "\"");
             structs_left->push_back(struct_info->getName());
         } else {
-            // stringStream << element->generateLuaStructDissect(tree, _name, _name, structs_left);
+            stringStream << element->generateLuaStructDissect(tree, _name, _name, structs_left);
         }
     }
 
@@ -331,4 +354,36 @@ string StructInfo::generateLuaStructDissect(string name, vector<string> *structs
                  << endl;
 
     return stringStream.str();
+}
+
+bool StructInfo::isLocalVar(string name) {
+    for (FieldPath *path : _local_vars)
+        if (path->equals(name))
+            return true;
+
+    return false;
+}
+
+FieldPath *StructInfo::getLocalVar(string name) {
+    for (FieldPath *path : _local_vars)
+        if (path->equalsLast(name))
+            return path;
+
+    return NULL;
+}
+
+bool StructInfo::isNeededVar(string name) {
+    for (FieldPath *path : _local_needed_by_above)
+        if (path->equalsLast(name))
+            return true;
+
+    return false;
+}
+
+FieldPath *StructInfo::getNeeded(string name) {
+    for (FieldPath *path : _local_needed_by_above)
+        if (path->equalsLast(name))
+            return path;
+
+    return NULL;
 }
