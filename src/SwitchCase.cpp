@@ -164,9 +164,11 @@ string SwitchCase::generateLuaStructDissect(string tree, string cont_name, strin
     if (is_first)
         stringStream << "    if " << control_var << " == " << _case_value << " then" << endl;
     else if (_is_default)
-        stringStream << "    else " << endl;
+        stringStream << endl
+                     << "    else " << endl;
     else
-        stringStream << "    elseif " << control_var << " == " << _case_value << " then" << endl;
+        stringStream << endl
+                     << "    elseif " << control_var << " == " << _case_value << " then" << endl;
 
     string local_prefix_name = prefix_name + "_" + _case_value;
 
