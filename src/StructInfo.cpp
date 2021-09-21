@@ -289,18 +289,18 @@ string StructInfo::generateLuaDissectCall(string indent, string tree, string lab
     return stringStream.str();
 }
 
-string StructInfo::generateLuaStructDissect(string name, vector<string> *structs_left) {
+string StructInfo::generateLuaStructDissect(string proto_name, vector<string> *structs_left) {
     ostringstream stringStream;
     if (!_is_referenced) return "";
 
     if (_is_top_level) {
-        stringStream << "function " << name << "_proto.dissector(buffer, pinfo, tree)" << endl
+        stringStream << "function " << proto_name << "_proto.dissector(buffer, pinfo, tree)" << endl
                      << endl;
         stringStream << "    local offset = 0" << endl;
-        stringStream << "    pinfo.cols['protocol'] = "
-                     << "\"" << name << "\"";
+        stringStream << "    pinfo.cols.protocol = "
+                     << "\"" << proto_name << "\"" << endl;
     } else {
-        stringStream << "function dissect_" << name << "(buffer, pinfo, tree";
+        stringStream << "function dissect_" << _name << "(buffer, pinfo, tree";
 
         for (FieldPath *path : _needed_by_below)
             if (!this->isLocalVar(path))
@@ -319,11 +319,11 @@ string StructInfo::generateLuaStructDissect(string name, vector<string> *structs
         }
     }
 
-    string tree = "t_" + name;
+    string tree = "t_" + _name;
 
     if (_is_top_level) {
         stringStream << "    local " << tree << " = tree:add(";
-        stringStream << name << "_, buffer())" << endl;
+        stringStream << proto_name << "_proto, buffer())" << endl;
     } else {
         stringStream << "    local " << tree << " = tree:add(buffer(offset, 1), label)" << endl;
     }
@@ -332,15 +332,15 @@ string StructInfo::generateLuaStructDissect(string name, vector<string> *structs
         if (element->isStruct()) {
             StructInfo *struct_info = _generator->getStruct(element->getType());
 
-            stringStream << struct_info->generateLuaDissectCall("    ", tree, "\"" + name + "\"");
-            structs_left->push_back(struct_info->getName());
+            stringStream << struct_info->generateLuaDissectCall("    ", tree, "\"" + element->getId() + "\"");
+            structs_left->push_back(element->getType());
         } else {
             stringStream << element->generateLuaStructDissect(tree, _name, _name, structs_left);
         }
     }
 
     if (!_is_top_level) {
-        stringStream << "    t_" << name << ":set_len(offset - saved_offset)" << endl;
+        stringStream << "    t_" << _name << ":set_len(offset - saved_offset)" << endl;
         stringStream << "    return offset";
 
         for (FieldPath *path : _local_needed_by_above) {
