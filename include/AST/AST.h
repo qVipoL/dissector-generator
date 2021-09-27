@@ -9,48 +9,20 @@ class AST {
     ASTType _type;
     int _line_n;
     vector<AST *> _children;
-
-    vector<string> _ids;
-    vector<string> _strings;
-    vector<string> _numbers;
-
-    vector<string> _starts_with;
-
-    const vector<string> TYPES = {
-        "AST_PROTO",
-        "AST_PROTO_DECL",
-        "AST_ENDIAN",
-        "AST_PROTO_DETAILS",
-        "AST_DISSECTOR_ENTRY",
-        "AST_DISSECTOR_TABLE",
-        "AST_ENUM",
-        "AST_ENUM_BODY_DECL",
-        "AST_ENUM_BODY_DEFAULT",
-        "AST_STRUCT",
-        "AST_STRUCT_BODY_LOCAL",
-        "AST_STRUCT_BODY_SWITCH",
-        "AST_LOCAL_ELEMENT",
-        "AST_SWITCH",
-        "AST_SWITCH_CONDITION",
-        "AST_FIELD_PATH",
-        "AST_FIELD",
-        "AST_CASE",
-        "AST_CASE_DEFAULT",
-        "AST_CASE_LABEL",
-        "AST_CASE_BODY"};
+    vector<string> _ids, _strings, _numbers, _starts_with;
 
    public:
     AST(ASTType type);
     AST(ASTType type, int line_n);
     ~AST();
 
-    vector<AST *> getChildren();
     ASTType getType();
+    int getLineN();
+    vector<AST *> getChildren();
     string getId(int idx);
     string getString(int idx);
     string getNumber(int idx);
     string getStartsWith(int idx);
-    int getLineN();
 
     void addChild(AST *child);
     void addId(string id);

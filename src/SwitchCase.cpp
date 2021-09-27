@@ -15,6 +15,45 @@ SwitchCase::~SwitchCase() {
         delete struct_element;
 }
 
+bool SwitchCase::getIsDefault() {
+    return _is_default;
+}
+
+string SwitchCase::getType() {
+    EnumInfo *enum_info = _generator->getEnum(_type_name);
+
+    if (enum_info != NULL)
+        return enum_info->getType();
+
+    return _type_name;
+}
+
+vector<FieldPath *> SwitchCase::getNeeded() {
+    vector<FieldPath *> needed;
+
+    for (StructElement *element : _elements) {
+        vector<FieldPath *> element_needed = element->getNeeded();
+
+        for (FieldPath *path : element_needed)
+            needed.push_back(path);
+    }
+
+    return needed;
+}
+
+vector<FieldPath *> SwitchCase::getItemNeeded() {
+    vector<FieldPath *> needed;
+
+    for (StructElement *element : _elements) {
+        vector<FieldPath *> local_needed = element->getItemNeeded();
+
+        for (FieldPath *local : local_needed)
+            needed.push_back(local);
+    }
+
+    return needed;
+}
+
 void SwitchCase::setIsDefault(bool is_default) {
     _is_default = is_default;
 }
@@ -78,41 +117,6 @@ bool SwitchCase::checkMissing(vector<StructInfo *> struct_stack, string name) {
     return true;
 }
 
-vector<FieldPath *> SwitchCase::getNeeded() {
-    vector<FieldPath *> needed;
-
-    for (StructElement *element : _elements) {
-        vector<FieldPath *> element_needed = element->getNeeded();
-
-        for (FieldPath *path : element_needed)
-            needed.push_back(path);
-    }
-
-    return needed;
-}
-
-vector<FieldPath *> SwitchCase::getItemNeeded() {
-    vector<FieldPath *> needed;
-
-    for (StructElement *element : _elements) {
-        vector<FieldPath *> local_needed = element->getItemNeeded();
-
-        for (FieldPath *local : local_needed)
-            needed.push_back(local);
-    }
-
-    return needed;
-}
-
-string SwitchCase::getType() {
-    EnumInfo *enum_info = _generator->getEnum(_type_name);
-
-    if (enum_info != NULL)
-        return enum_info->getType();
-
-    return _type_name;
-}
-
 string SwitchCase::generateLuaFieldsDef(string field_prefix, string search_prefix, vector<string> *structs_left,
                                         vector<string> *field_names, vector<string> *expert_names) {
     ostringstream stringStream;
@@ -151,10 +155,6 @@ string SwitchCase::generateLuaFieldsDef(string field_prefix, string search_prefi
     }
 
     return stringStream.str();
-}
-
-bool SwitchCase::getIsDefault() {
-    return _is_default;
 }
 
 string SwitchCase::generateLuaStructDissect(string tree, string cont_name, string prefix_name, string control_var,

@@ -11,14 +11,14 @@ class Dissector {
     Dissector(string details);
     ~Dissector();
 
-    void setTable(string table);
-    void setTableEntry(string table_entry);
-    void setStructEntry(string struct_entry);
-
     string getDetails();
     string getTable();
     string getTableEntry();
     string getStructEntry();
+
+    void setTable(string table);
+    void setTableEntry(string table_entry);
+    void setStructEntry(string struct_entry);
 };
 
 #endif

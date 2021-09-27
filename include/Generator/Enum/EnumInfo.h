@@ -15,13 +15,14 @@ class EnumInfo {
     EnumInfo(string name, string type, int bytes);
     ~EnumInfo();
 
-    void addElement(EnumElement *element);
+    string getType();
+    vector<EnumElement *> getElements();
+
     void setHasDefault(bool has_default);
     void setDefaultString(string default_string);
-    string getType();
-    bool isBaseType();
 
-    vector<EnumElement *> getElements();
+    void addElement(EnumElement *element);
+    bool isBaseType();
 };
 
 #endif

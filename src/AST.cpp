@@ -16,17 +16,20 @@ AST::AST(ASTType type, int line_n) {
 }
 
 AST::~AST() {
-    for (AST *child : _children) {
+    for (AST *child : _children)
         delete child;
-    }
-}
-
-vector<AST *> AST::getChildren() {
-    return _children;
 }
 
 ASTType AST::getType() {
     return _type;
+}
+
+int AST::getLineN() {
+    return _line_n;
+}
+
+vector<AST *> AST::getChildren() {
+    return _children;
 }
 
 string AST::getId(int idx) {
@@ -47,10 +50,6 @@ string AST::getNumber(int idx) {
 string AST::getStartsWith(int idx) {
     if (_starts_with.size() == 0 || _starts_with.size() <= idx) return "";
     return _starts_with[idx];
-}
-
-int AST::getLineN() {
-    return _line_n;
 }
 
 void AST::addChild(AST *child) {
@@ -75,7 +74,7 @@ void AST::addStartsWith(string startsWith) {
 
 void AST::display(int width) {
     int i;
-    cout << TYPES[_type] << endl;
+    cout << AST_TYPES[_type] << endl;
 
     for (AST *child : _children) {
         for (i = 0; i < width; i++)

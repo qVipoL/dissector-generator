@@ -14,6 +14,46 @@ StructInfo::StructInfo(string name, Generator *generator) {
 StructInfo::~StructInfo() {
     for (StructElement *element : _elements)
         delete element;
+
+    for (FieldPath *path : _local_vars)
+        delete path;
+    for (FieldPath *path : _needed_by_below)
+        delete path;
+    for (FieldPath *path : _local_needed_by_above)
+        delete path;
+    for (FieldPath *path : _local_item_vars)
+        delete path;
+    for (FieldPath *path : _items_needed_by_below)
+        delete path;
+}
+
+string StructInfo::getName() {
+    return _name;
+}
+
+FieldPath *StructInfo::getLocalVar(string name) {
+    for (FieldPath *path : _local_vars)
+        if (path->equalsLast(name))
+            return path;
+
+    return NULL;
+}
+
+FieldPath *StructInfo::getNeeded(string name) {
+    for (FieldPath *path : _local_needed_by_above)
+        if (path->equalsLast(name))
+            return path;
+
+    return NULL;
+}
+
+StructElement *StructInfo::getElement(string id) {
+    for (StructElement *element : _elements) {
+        if (element->getId().compare(id) == 0)
+            return element;
+    }
+
+    return NULL;
 }
 
 void StructInfo::setIsTopLevel(bool is_top_level) {
@@ -24,12 +64,35 @@ void StructInfo::setDissector(Dissector *dissector) {
     _dissector = dissector;
 }
 
-void StructInfo::addElement(StructElement *element) {
-    _elements.push_back(element);
+void StructInfo::setNeededInChildren(FieldPath *path) {
+    if (path->isOneLevel()) return;
+
+    StructElement *element = this->getElement(path->getComponentName());
+
+    StructInfo *struct_info = _generator->getStruct(element->getType());
+
+    if (struct_info != NULL)
+        struct_info->setNeededInChildrenRec(path->getNext(), path);
 }
 
-string StructInfo::getName() {
-    return _name;
+void StructInfo::setNeededInChildrenRec(FieldPath *sub_path, FieldPath *path) {
+    if (sub_path->isOneLevel()) {
+        path->addIfNotContains(&_local_needed_by_above);
+
+        return;
+    }
+
+    StructElement *element = this->getElement(path->getComponentName());
+
+    StructInfo *struct_info = _generator->getStruct(element->getType());
+
+    struct_info->setNeededInChildrenRec(sub_path->getNext(), path);
+
+    path->addIfNotContains(&_local_needed_by_above);
+}
+
+void StructInfo::addElement(StructElement *element) {
+    _elements.push_back(element);
 }
 
 bool StructInfo::checkMissing(vector<StructInfo *> struct_stack) {
@@ -54,15 +117,6 @@ bool StructInfo::checkMissing(vector<StructInfo *> struct_stack) {
     struct_stack.pop_back();
 
     return missing;
-}
-
-StructElement *StructInfo::getElement(string id) {
-    for (StructElement *element : _elements) {
-        if (element->getId().compare(id) == 0)
-            return element;
-    }
-
-    return NULL;
 }
 
 bool StructInfo::checkPathIsBaseType(FieldPath *path, vector<StructInfo *> struct_stack) {
@@ -121,33 +175,6 @@ bool StructInfo::checkPathIsBaseType(FieldPath *path, vector<StructInfo *> struc
     path->setType(type);
 
     return true;
-}
-
-void StructInfo::setNeededInChildren(FieldPath *path) {
-    if (path->isOneLevel()) return;
-
-    StructElement *element = this->getElement(path->getComponentName());
-
-    StructInfo *struct_info = _generator->getStruct(element->getType());
-
-    if (struct_info != NULL)
-        struct_info->setNeededInChildrenRec(path->getNext(), path);
-}
-
-void StructInfo::setNeededInChildrenRec(FieldPath *sub_path, FieldPath *path) {
-    if (sub_path->isOneLevel()) {
-        path->addIfNotContains(&_local_needed_by_above);
-
-        return;
-    }
-
-    StructElement *element = this->getElement(path->getComponentName());
-
-    StructInfo *struct_info = _generator->getStruct(element->getType());
-
-    struct_info->setNeededInChildrenRec(sub_path->getNext(), path);
-
-    path->addIfNotContains(&_local_needed_by_above);
 }
 
 void StructInfo::setupReferences(vector<FieldPath *> needed_paths) {
@@ -232,6 +259,38 @@ void StructInfo::setupItemReferences(vector<FieldPath *> needed_items) {
     }
 }
 
+bool StructInfo::isLocalVar(FieldPath *path) {
+    for (FieldPath *temp : _local_vars)
+        if (temp->equals(path))
+            return true;
+
+    return false;
+}
+
+bool StructInfo::isLocalItemVar(FieldPath *path) {
+    for (FieldPath *temp : _local_item_vars)
+        if (temp->equals(path))
+            return true;
+
+    return false;
+}
+
+bool StructInfo::isLocalVar(string name) {
+    for (FieldPath *path : _local_vars)
+        if (path->equals(name))
+            return true;
+
+    return false;
+}
+
+bool StructInfo::isNeededVar(string name) {
+    for (FieldPath *path : _local_needed_by_above)
+        if (path->equalsLast(name))
+            return true;
+
+    return false;
+}
+
 string StructInfo::generateLuaFields(string search_prefix, vector<string> *structs_left,
                                      vector<string> *field_names, vector<string> *expert_names) {
     string prefix = search_prefix + "." + _name;
@@ -248,22 +307,6 @@ string StructInfo::generateLuaFields(string search_prefix, vector<string> *struc
     }
 
     return stringStream.str();
-}
-
-bool StructInfo::isLocalVar(FieldPath *path) {
-    for (FieldPath *temp : _local_vars)
-        if (temp->equals(path))
-            return true;
-
-    return false;
-}
-
-bool StructInfo::isLocalItemVar(FieldPath *path) {
-    for (FieldPath *temp : _local_item_vars)
-        if (temp->equals(path))
-            return true;
-
-    return false;
 }
 
 string StructInfo::generateLuaDissectCall(string indent, string tree, string label) {
@@ -354,36 +397,4 @@ string StructInfo::generateLuaStructDissect(string proto_name, vector<string> *s
                  << endl;
 
     return stringStream.str();
-}
-
-bool StructInfo::isLocalVar(string name) {
-    for (FieldPath *path : _local_vars)
-        if (path->equals(name))
-            return true;
-
-    return false;
-}
-
-FieldPath *StructInfo::getLocalVar(string name) {
-    for (FieldPath *path : _local_vars)
-        if (path->equalsLast(name))
-            return path;
-
-    return NULL;
-}
-
-bool StructInfo::isNeededVar(string name) {
-    for (FieldPath *path : _local_needed_by_above)
-        if (path->equalsLast(name))
-            return true;
-
-    return false;
-}
-
-FieldPath *StructInfo::getNeeded(string name) {
-    for (FieldPath *path : _local_needed_by_above)
-        if (path->equalsLast(name))
-            return path;
-
-    return NULL;
 }

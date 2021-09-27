@@ -28,12 +28,6 @@ class Generator {
     EnumInfo *_curr_enum;
     StructInfo *_curr_struct;
 
-    map<string, int> TYPE_TO_BYTE = {
-        {"uint8", 1},
-        {"uint16", 2},
-        {"uint32", 4},
-    };
-
     void process();
     void processNode(AST *node);
     void processProto(AST *node);
@@ -52,27 +46,27 @@ class Generator {
     FieldPath *processFieldPath(AST *node);
     void processCaseBody(SwitchCase *case_element, AST *node, string label_text);
 
+    string generate();
+    string generateCode();
+    bool isMissingDeclarations();
+    void setupReferences();
+    void setupItemReferences();
+
     string generateDissector(string name);
     string generateEnum(string name);
     string generateProtoFields(string name);
     string generateProtoStructs(string name);
     string generateProtoEnding(string name);
 
-    string generate();
-    bool isMissingDeclarations();
-    void setupReferences();
-    void setupItemReferences();
-    string generateCode();
-
    public:
     Generator(AST *tree);
     ~Generator();
 
+    EndianType getEndianType();
     StructInfo *getStruct(string struct_name);
     EnumInfo *getEnum(string enum_name);
 
     string generateLua();
-    EndianType getEndianType();
 };
 
 #endif

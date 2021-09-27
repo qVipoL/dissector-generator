@@ -21,21 +21,23 @@ class SwitchCase {
     SwitchCase(Generator *generator);
     ~SwitchCase();
 
+    bool getIsDefault();
+    string getType();
+    vector<FieldPath *> getNeeded();
+    vector<FieldPath *> getItemNeeded();
+
     void setIsDefault(bool is_default);
     void setIsVoid(bool is_void);
     void setCaseValue(string case_value);
     void setTypeName(string type_name);
     void setDisplayName(string display_name);
     void setLocalName(string local_name);
+
     void addElement(StructElement *element);
 
-    vector<FieldPath *> getNeeded();
-    vector<FieldPath *> getItemNeeded();
-
-    bool getIsDefault();
     bool isBaseType();
     bool checkMissing(vector<StructInfo *> struct_stack, string name);
-    string getType();
+
     string generateLuaFieldsDef(string field_prefix, string search_prefix, vector<string> *structs_left,
                                 vector<string> *field_names, vector<string> *expert_names);
     string generateLuaStructDissect(string tree, string cont_name, string prefix_name, string control_var,

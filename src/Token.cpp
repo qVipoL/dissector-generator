@@ -8,7 +8,6 @@ Token::Token(TokenType type, string value) {
 }
 
 Token::~Token() {
-    // cout << "Token Destructed." << endl;
 }
 
 TokenType Token::getType() {
@@ -20,5 +19,5 @@ string Token::getValue() {
 }
 
 void Token::display() {
-    cout << "(" << _type << ", " << _value << ")" << endl;
+    cout << "(" << TOKEN_TYPES[_type] << ", " << _value << ")" << endl;
 }

@@ -23,29 +23,30 @@ class StructInfo {
     StructInfo(string name, Generator *generator);
     ~StructInfo();
 
+    string getName();
+    FieldPath *getLocalVar(string name);
+    FieldPath *getNeeded(string name);
+    StructElement *getElement(string id);
+
     void setIsTopLevel(bool is_top_level);
     void setDissector(Dissector *dissector);
-    void addElement(StructElement *element);
+    void setNeededInChildren(FieldPath *path);
+    void setNeededInChildrenRec(FieldPath *sub_path, FieldPath *path);
 
-    string getName();
+    void addElement(StructElement *element);
 
     bool checkMissing(vector<StructInfo *> struct_stack);
     bool checkPathIsBaseType(FieldPath *path, vector<StructInfo *> struct_stack);
-
-    StructElement *getElement(string id);
-    void setNeededInChildren(FieldPath *path);
-    void setNeededInChildrenRec(FieldPath *sub_path, FieldPath *path);
 
     bool isLocalVar(FieldPath *path);
     bool isLocalItemVar(FieldPath *path);
     bool isLocalVar(string name);
     bool isNeededVar(string name);
-    string generateLuaDissectCall(string indent, string tree, string label);
-    FieldPath *getLocalVar(string name);
-    FieldPath *getNeeded(string name);
 
     void setupReferences(vector<FieldPath *> needed_paths);
     void setupItemReferences(vector<FieldPath *> needed_items);
+
+    string generateLuaDissectCall(string indent, string tree, string label);
     string generateLuaFields(string search_prefix, vector<string> *structs_left,
                              vector<string> *field_names, vector<string> *expert_names);
     string generateLuaStructDissect(string name, vector<string> *structs_left);

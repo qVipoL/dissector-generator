@@ -16,8 +16,12 @@ EnumInfo::~EnumInfo() {
         delete element;
 }
 
-void EnumInfo::addElement(EnumElement *element) {
-    _elements.push_back(element);
+string EnumInfo::getType() {
+    return _type;
+}
+
+vector<EnumElement *> EnumInfo::getElements() {
+    return _elements;
 }
 
 void EnumInfo::setHasDefault(bool has_default) {
@@ -28,14 +32,10 @@ void EnumInfo::setDefaultString(string default_string) {
     _default_string = default_string;
 }
 
-string EnumInfo::getType() {
-    return _type;
+void EnumInfo::addElement(EnumElement *element) {
+    _elements.push_back(element);
 }
 
 bool EnumInfo::isBaseType() {
     return typeIndex(_type) > -1;
-}
-
-vector<EnumElement *> EnumInfo::getElements() {
-    return _elements;
 }

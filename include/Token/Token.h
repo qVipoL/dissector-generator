@@ -15,6 +15,7 @@ class Token {
 
     TokenType getType();
     string getValue();
+
     void display();
 };
 

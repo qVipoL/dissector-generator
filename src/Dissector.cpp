@@ -9,18 +9,6 @@ Dissector::Dissector(string details) {
 Dissector::~Dissector() {
 }
 
-void Dissector::setTable(string table) {
-    _table = table;
-}
-
-void Dissector::setTableEntry(string table_entry) {
-    _table_entry = table_entry;
-}
-
-void Dissector::setStructEntry(string struct_entry) {
-    _struct_entry = struct_entry;
-}
-
 string Dissector::getDetails() {
     return _details;
 }
@@ -35,4 +23,16 @@ string Dissector::getTableEntry() {
 
 string Dissector::getStructEntry() {
     return _struct_entry;
+}
+
+void Dissector::setTable(string table) {
+    _table = table;
+}
+
+void Dissector::setTableEntry(string table_entry) {
+    _table_entry = table_entry;
+}
+
+void Dissector::setStructEntry(string struct_entry) {
+    _struct_entry = struct_entry;
 }

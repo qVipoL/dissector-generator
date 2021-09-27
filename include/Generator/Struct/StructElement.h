@@ -25,20 +25,22 @@ class StructElement {
     StructElement(StructElementType element_type);
     ~StructElement();
 
+    string getId();
+    string getType();
+    vector<FieldPath *> getNeeded();
+    vector<FieldPath *> getItemNeeded();
+
     void setGenerator(Generator *generator);
     void setType(string type);
     void setId(string id);
     void setParent(StructInfo *parent);
     void setConditionPath(FieldPath *condition_path);
+
     void addCase(SwitchCase *case_element);
-    string getId();
-    string getType();
 
     bool isStruct();
     bool isBaseType();
     bool checkMissing(vector<StructInfo *> missing, string name);
-    vector<FieldPath *> getNeeded();
-    vector<FieldPath *> getItemNeeded();
 
     string generateLuaStructDissect(string tree, string proto_name, string field_prefix, vector<string> *structs_left);
 

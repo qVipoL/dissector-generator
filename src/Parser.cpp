@@ -397,7 +397,6 @@ Parser::Parser(Lexer *lexer) {
 }
 
 Parser::~Parser() {
-    // delete _lexer;
     delete _curr_token;
 }
 

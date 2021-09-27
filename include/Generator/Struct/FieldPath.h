@@ -8,28 +8,29 @@
 class FieldPath {
    private:
     PathType _path_type;
-    string _type;
+    string _type, _component_name;
     FieldPath *_next;
-    string _component_name;
 
    public:
     FieldPath();
     FieldPath(AST *node);
     ~FieldPath();
 
+    PathType getPathType();
+    string getComponentName();
+    FieldPath *getNext();
+    string getParamName();
+
     void setType(string type);
     void setNext(FieldPath *next);
     void setComponentName(string component_name);
-    string getComponentName();
-
-    FieldPath *getNext();
-    PathType getPathType();
-    string getParamName();
 
     void addIfNotContains(vector<FieldPath *> *list);
-    bool equals(FieldPath *path);
+
     bool isOneLevel();
     void removeRelativeParent();
+
+    bool equals(FieldPath *path);
     bool equals(string name);
     bool equalsLast(string name);
 };

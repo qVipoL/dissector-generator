@@ -1,5 +1,7 @@
 #include "../include/Generator/Generator.h"
 
+#include "../include/util/util.h"
+
 /* Private */
 
 void Generator::process() {
@@ -107,10 +109,10 @@ void Generator::processDissectorTable(AST *node) {
 
 void Generator::processEnum(AST *node) {
     string name = node->getId(0), type = node->getId(1);
-    int bytes = TYPE_TO_BYTE[type];
+    int bytes = baseTypeLen(type);
     ostringstream stringStream;
 
-    if (bytes == 0) {
+    if (bytes < 0) {
         stringStream << "[Line " << node->getLineN() << "] Type: " << type << " no such type." << endl;
         throw runtime_error(stringStream.str());
     }
@@ -235,6 +237,31 @@ string Generator::generate() {
     throw runtime_error("Error: Missing struct declarations.");
 }
 
+string Generator::generateCode() {
+    ostringstream stringStream;
+    map<string, Dissector *>::iterator di;
+    map<string, EnumInfo *>::iterator ei;
+    map<string, StructInfo *>::iterator si;
+
+    stringStream << endl;
+    stringStream << "=== LUA Dissector ===" << endl;
+    stringStream << endl;
+
+    for (di = _dissectors.begin(); di != _dissectors.end(); di++)
+        stringStream << this->generateDissector(di->first);
+
+    for (ei = _enums.begin(); ei != _enums.end(); ei++)
+        stringStream << this->generateEnum(ei->first);
+
+    for (di = _dissectors.begin(); di != _dissectors.end(); di++) {
+        stringStream << this->generateProtoFields(di->first);
+        stringStream << this->generateProtoStructs(di->first);
+        stringStream << this->generateProtoEnding(di->first);
+    }
+
+    return stringStream.str();
+}
+
 bool Generator::isMissingDeclarations() {
     vector<StructInfo *> struct_stack;
     bool missing = false;
@@ -354,31 +381,6 @@ string Generator::generateProtoEnding(string name) {
     return stringStream.str();
 }
 
-string Generator::generateCode() {
-    ostringstream stringStream;
-    map<string, Dissector *>::iterator di;
-    map<string, EnumInfo *>::iterator ei;
-    map<string, StructInfo *>::iterator si;
-
-    stringStream << endl;
-    stringStream << "=== LUA Dissector ===" << endl;
-    stringStream << endl;
-
-    for (di = _dissectors.begin(); di != _dissectors.end(); di++)
-        stringStream << this->generateDissector(di->first);
-
-    for (ei = _enums.begin(); ei != _enums.end(); ei++)
-        stringStream << this->generateEnum(ei->first);
-
-    for (di = _dissectors.begin(); di != _dissectors.end(); di++) {
-        stringStream << this->generateProtoFields(di->first);
-        stringStream << this->generateProtoStructs(di->first);
-        stringStream << this->generateProtoEnding(di->first);
-    }
-
-    return stringStream.str();
-}
-
 /* Public */
 
 Generator::Generator(AST *tree) {
@@ -405,6 +407,10 @@ Generator::~Generator() {
         delete si->second;
 }
 
+EndianType Generator::getEndianType() {
+    return _endian_type;
+}
+
 StructInfo *Generator::getStruct(string struct_name) {
     return _structs[struct_name];
 }
@@ -416,8 +422,4 @@ EnumInfo *Generator::getEnum(string enum_name) {
 string Generator::generateLua() {
     this->process();
     return this->generate();
-}
-
-EndianType Generator::getEndianType() {
-    return _endian_type;
 }

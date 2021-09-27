@@ -29,6 +29,17 @@ int typeIndex(string type) {
     return -1;
 }
 
+int baseTypeLen(string type) {
+    int i;
+
+    for (i = 0; i < BASE_TYPES.size(); i++) {
+        if (BASE_TYPES[i].compare(type) == 0)
+            return BASE_TYPE_LENS[i];
+    }
+
+    return -1;
+}
+
 string getLuaType(string type) {
     int idx = typeIndex(type);
 
@@ -44,29 +55,6 @@ string getLuaDisplayType(string type) {
     return FIELD_BASE[idx];
 }
 
-int baseTypeLen(string type) {
-    int i;
-
-    for (i = 0; i < BASE_TYPES.size(); i++) {
-        if (BASE_TYPES[i].compare(type) == 0)
-            return BASE_TYPE_LENS[i];
-    }
-
-    return -1;
-}
-
-string baseTypeLenString(string type) {
-    int len = baseTypeLen(type);
-    ostringstream stringStream;
-
-    if (len < 0)
-        stringStream << "Unknown";
-    else
-        stringStream << len;
-
-    return stringStream.str();
-}
-
 string getLuaAdder(string type, EndianType endian) {
     int i;
 
@@ -79,4 +67,16 @@ string getLuaAdder(string type, EndianType endian) {
     }
 
     return "add_UNKNOWN";
+}
+
+string baseTypeLenString(string type) {
+    int len = baseTypeLen(type);
+    ostringstream stringStream;
+
+    if (len < 0)
+        stringStream << "Unknown";
+    else
+        stringStream << len;
+
+    return stringStream.str();
 }

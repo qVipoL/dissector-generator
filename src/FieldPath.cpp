@@ -46,6 +46,18 @@ FieldPath::~FieldPath() {
     }
 }
 
+PathType FieldPath::getPathType() {
+    return _path_type;
+}
+
+string FieldPath::getComponentName() {
+    return _component_name;
+}
+
+FieldPath *FieldPath::getNext() {
+    return _next;
+}
+
 void FieldPath::setType(string type) {
     _type = type;
 }
@@ -58,16 +70,40 @@ void FieldPath::setComponentName(string component_name) {
     _component_name = component_name;
 }
 
-string FieldPath::getComponentName() {
-    return _component_name;
+void FieldPath::addIfNotContains(vector<FieldPath *> *list) {
+    if (list == NULL) return;
+
+    for (FieldPath *path : (*list)) {
+        if (path->equals(this)) {
+            return;
+        }
+    }
+
+    list->push_back(this);
 }
 
-FieldPath *FieldPath::getNext() {
-    return _next;
+bool FieldPath::isOneLevel() {
+    return (_path_type != RELATIVE_PARENT && _next == NULL);
 }
 
-PathType FieldPath::getPathType() {
-    return _path_type;
+void FieldPath::removeRelativeParent() {
+    _path_type = RELATIVE_PARENT;
+}
+
+string FieldPath::getParamName() {
+    FieldPath *comp = this;
+    string name;
+
+    while (comp->getNext() != NULL) {
+        if (name.compare("") == 0)
+            name = comp->getComponentName();
+        else
+            name = name + "_" + comp->getComponentName();
+
+        comp = comp->getNext();
+    }
+
+    return name.compare("") == 0 ? comp->getComponentName() : name + "_" + comp->getComponentName();
 }
 
 bool FieldPath::equals(FieldPath *path) {
@@ -89,42 +125,6 @@ bool FieldPath::equals(FieldPath *path) {
     }
 
     return temp2 != NULL;
-}
-
-bool FieldPath::isOneLevel() {
-    return (_path_type != RELATIVE_PARENT && _next == NULL);
-}
-
-void FieldPath::addIfNotContains(vector<FieldPath *> *list) {
-    if (list == NULL) return;
-
-    for (FieldPath *path : (*list)) {
-        if (path->equals(this)) {
-            return;
-        }
-    }
-
-    list->push_back(this);
-}
-
-void FieldPath::removeRelativeParent() {
-    _path_type = RELATIVE_PARENT;
-}
-
-string FieldPath::getParamName() {
-    FieldPath *comp = this;
-    string name;
-
-    while (comp->getNext() != NULL) {
-        if (name.compare("") == 0)
-            name = comp->getComponentName();
-        else
-            name = name + "_" + comp->getComponentName();
-
-        comp = comp->getNext();
-    }
-
-    return name.compare("") == 0 ? comp->getComponentName() : name + "_" + comp->getComponentName();
 }
 
 bool FieldPath::equals(string name) {
