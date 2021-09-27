@@ -26,8 +26,12 @@ int main(int argc, char *argv[]) {
         // tree->display(1);
 
         generator = new Generator(tree);
-        cout << "Lua code:\n"
-             << generator->generateLua() << endl;
+
+        if (argv[2]) {
+            writeFile(argv[2], generator->generateLua());
+        } else {
+            cout << generator->generateLua() << endl;
+        }
     } catch (runtime_error err) {
         cout << err.what() << endl;
         error_code = EXIT_FAILURE;

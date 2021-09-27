@@ -4,5 +4,6 @@
 #include "std_include.h"
 
 string readFile(string filename);
+void writeFile(string filename, string content);
 
 #endif
