@@ -1,5 +1,7 @@
 #include "../include/Generator/Generator.h"
 
+#include "../include/Generator/Struct/LocalElement.h"
+#include "../include/Generator/Struct/SwitchElement.h"
 #include "../include/util/util.h"
 
 /* Private */
@@ -158,7 +160,7 @@ void Generator::processStructChild(AST *node) {
 StructElement *Generator::processLocalElement(AST *node) {
     string type = node->getId(0);
     string id = node->getId(1) != "" ? node->getId(1) : node->getString(0);
-    StructElement *localElement = new StructElement(TYPE_LOCAL_ELEMENT);
+    StructElement *localElement = new LocalElement(TYPE_LOCAL_ELEMENT);
 
     localElement->setId(id);
     localElement->setType(type);
@@ -171,7 +173,7 @@ StructElement *Generator::processLocalElement(AST *node) {
 StructElement *Generator::processSwitch(AST *node) {
     int idx = 0;
     FieldPath *field_path = this->processFieldPath(node->getChildren()[0]);
-    StructElement *switchElement = new StructElement(TYPE_SWITCH);
+    StructElement *switchElement = new SwitchElement(TYPE_SWITCH);
     string label_text;
 
     switchElement->setConditionPath(field_path);

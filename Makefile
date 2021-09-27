@@ -14,7 +14,7 @@ OBJ_DIR 		:= $(OUT_DIR)/obj
 PROGRAM			:= diss-gen
 TARGET			:= $(BIN_DIR)/$(PROGRAM)
 
-# HEADERS			:= $(wildcard $(INCLUDE_DIR)/*.h)
+HEADERS			:= $(wildcard $(INCLUDE_DIR)/*.h)
 SOURCES			:= $(wildcard $(SRC_DIR)/*cpp)
 OBJECTS 		:= $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SOURCES))
 
@@ -30,8 +30,8 @@ $(BIN_DIR):
 $(OBJ_DIR):
 	mkdir -p $@
 
-# $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
-# 	$(CC) $(CFLAGS) -c $< -o $@
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CC) $(CFLAGS) -c $< -o $@

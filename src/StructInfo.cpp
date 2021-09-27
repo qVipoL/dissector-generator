@@ -1,5 +1,7 @@
 #include "../include/Generator/Struct/StructInfo.h"
 
+#include "../include/Generator/Struct/LocalElement.h"
+#include "../include/Generator/Struct/SwitchElement.h"
 #include "../include/util/util.h"
 
 /* Public */
