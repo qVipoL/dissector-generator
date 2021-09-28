@@ -339,13 +339,12 @@ string StructInfo::generateLuaStructDissect(string proto_name, vector<string> *s
     if (!_is_referenced) return "";
 
     if (_is_top_level) {
-        stringStream << "function " << proto_name << "_proto.dissector(buffer, pinfo, tree)" << endl
-                     << endl;
+        stringStream << "function " << proto_name << "_proto.dissector(buffer, pinfo, tree)" << endl;
         stringStream << "    local offset = 0" << endl;
         stringStream << "    pinfo.cols.protocol = "
                      << "\"" << proto_name << "\"" << endl;
     } else {
-        stringStream << "function dissect_" << _name << "(buffer, pinfo, tree";
+        stringStream << "function dissect_" << _name << "(buffer, pinfo, tree, offset, label";
 
         for (FieldPath *path : _needed_by_below)
             if (!this->isLocalVar(path))
@@ -355,9 +354,8 @@ string StructInfo::generateLuaStructDissect(string proto_name, vector<string> *s
             if (!this->isLocalItemVar(path))
                 stringStream << ", i_" << path->getParamName();
 
-        stringStream << ")" << endl
-                     << endl;
-        stringStream << "    local saved_offset = offset";
+        stringStream << ")" << endl;
+        stringStream << "    local saved_offset = offset" << endl;
 
         for (FieldPath *path : _local_needed_by_above) {
             stringStream << "    local l_" << path->getParamName();
@@ -377,7 +375,7 @@ string StructInfo::generateLuaStructDissect(string proto_name, vector<string> *s
         if (element->isStruct()) {
             StructInfo *struct_info = _generator->getStruct(element->getType());
 
-            stringStream << struct_info->generateLuaDissectCall("    ", tree, "\"" + element->getId() + "\"");
+            stringStream << struct_info->generateLuaDissectCall("", tree, "\"" + element->getId() + "\"");
             structs_left->push_back(element->getType());
         } else {
             stringStream << element->generateLuaStructDissect(tree, _name, _name, structs_left);

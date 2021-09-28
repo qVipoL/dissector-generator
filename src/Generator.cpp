@@ -245,9 +245,9 @@ string Generator::generateCode() {
     map<string, EnumInfo *>::iterator ei;
     map<string, StructInfo *>::iterator si;
 
-    stringStream << endl;
-    stringStream << "=== LUA Dissector ===" << endl;
-    stringStream << endl;
+    // stringStream << endl;
+    // stringStream << "=== LUA Dissector ===" << endl;
+    // stringStream << endl;
 
     for (di = _dissectors.begin(); di != _dissectors.end(); di++)
         stringStream << this->generateDissector(di->first);
@@ -387,6 +387,7 @@ string Generator::generateProtoEnding(string name) {
 
 Generator::Generator(AST *tree) {
     _tree = tree;
+    semantic_error = false;
 }
 
 Generator::~Generator() {
