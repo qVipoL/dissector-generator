@@ -7,10 +7,10 @@
 int main(int argc, char *argv[]) {
     int error_code = EXIT_SUCCESS;
     string content;
-    Lexer *lexer;
-    Parser *parser;
-    AST *tree;
-    Generator *generator;
+    Lexer *lexer = NULL;
+    Parser *parser = NULL;
+    AST *tree = NULL;
+    Generator *generator = NULL;
 
     if (argc < 2) {
         cout << "No file-name was passed." << endl;

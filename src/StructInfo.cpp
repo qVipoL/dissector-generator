@@ -17,16 +17,18 @@ StructInfo::~StructInfo() {
     for (StructElement *element : _elements)
         delete element;
 
-    for (FieldPath *path : _local_vars)
-        delete path;
-    for (FieldPath *path : _needed_by_below)
-        delete path;
-    for (FieldPath *path : _local_needed_by_above)
-        delete path;
-    for (FieldPath *path : _local_item_vars)
-        delete path;
-    for (FieldPath *path : _items_needed_by_below)
-        delete path;
+    if (!_is_top_level) {
+        for (FieldPath *path : _local_vars)
+            delete path;
+        for (FieldPath *path : _needed_by_below)
+            delete path;
+        for (FieldPath *path : _local_needed_by_above)
+            delete path;
+        for (FieldPath *path : _local_item_vars)
+            delete path;
+        for (FieldPath *path : _items_needed_by_below)
+            delete path;
+    }
 }
 
 string StructInfo::getName() {
@@ -357,9 +359,9 @@ string StructInfo::generateLuaStructDissect(string proto_name, vector<string> *s
         stringStream << ")" << endl;
         stringStream << "    local saved_offset = offset" << endl;
 
-        for (FieldPath *path : _local_needed_by_above) {
-            stringStream << "    local l_" << path->getParamName();
-        }
+        // for (FieldPath *path : _local_needed_by_above) {
+        //     stringStream << "    local l_" << path->getParamName();
+        // }
     }
 
     string tree = "t_" + _name;
