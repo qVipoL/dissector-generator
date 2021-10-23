@@ -1,6 +1,10 @@
 #ifndef __AST_TYPE_H__
 #define __AST_TYPE_H__
 
+/*
+ * ASTType - Abstract Syntax Tree Type
+ * Usage - Tree node type
+ */
 enum ASTType {
     AST_PROTO,
     AST_PROTO_DECL,

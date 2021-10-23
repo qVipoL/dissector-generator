@@ -3,6 +3,11 @@
 
 #include "../../util/std_include.h"
 
+/*
+ * EnumElement
+ * Usage - Represents an element of an enum, used when
+ * an enum defines values
+ */
 class EnumElement {
    private:
     string _id, _value, _string;

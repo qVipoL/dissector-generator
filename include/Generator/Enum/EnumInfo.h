@@ -4,6 +4,11 @@
 #include "../../util/std_include.h"
 #include "EnumElement.h"
 
+/*
+ * EnumInfo
+ * Usage - Represents the enum itself, contains all of
+ * his attributes and the defined sub-elements
+ */
 class EnumInfo {
    private:
     string _name, _type, _default_string;

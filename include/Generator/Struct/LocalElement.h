@@ -3,6 +3,11 @@
 
 #include "StructElement.h"
 
+/*
+ * LocalElement
+ * Usage - Concrete implementation of the abstract StructElement
+ * it defines the local element of an enum (a variable)
+ */
 class LocalElement : public StructElement {
    public:
     LocalElement(StructElementType element_type);

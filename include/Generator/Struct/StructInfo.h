@@ -9,6 +9,11 @@
 class Generator;
 class StructElement;
 
+/*
+ * StructInfo
+ * Usage - defines the struct itself, contains all the attributes
+ * and the elements of the struct
+ */
 class StructInfo {
    private:
     string _name;

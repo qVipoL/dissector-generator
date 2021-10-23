@@ -3,6 +3,10 @@
 
 #include "StructElement.h"
 
+/*
+ * SwitchElement
+ * Usage - represents the switch element
+ */
 class SwitchElement : public StructElement {
    public:
     SwitchElement(StructElementType element_type);

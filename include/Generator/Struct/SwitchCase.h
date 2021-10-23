@@ -10,6 +10,11 @@ class StructElement;
 class StructInfo;
 class Generator;
 
+/*
+ * SwitchCase
+ * Usage - case declaration of the switch element
+ * can contain struct elemnts (for now only of localElement type)
+ */
 class SwitchCase {
    private:
     bool _is_default, _is_void;

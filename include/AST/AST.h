@@ -4,6 +4,11 @@
 #include "../util/std_include.h"
 #include "ASTType.h"
 
+/*
+ * AST - Abstract Syntax Tree
+ * Usage - Tree node, in the syntax tree that
+ * the parser creates
+ */
 class AST {
    private:
     ASTType _type;

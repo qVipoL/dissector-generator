@@ -12,6 +12,13 @@ class SwitchCase;
 class Generator;
 class StructInfo;
 
+/*
+ * StructElement
+ * Usage - Abstract class that defines the structure of the struct element
+ * can be either LocalElement (variable definition)
+ * or
+ * SwitchElement (switch declaration)
+ */
 class StructElement {
    protected:
     string _type, _id;

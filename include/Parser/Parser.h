@@ -5,6 +5,11 @@
 #include "../Lexer/Lexer.h"
 #include "../util/std_include.h"
 
+/*
+ * Parser
+ * Usage - parses the tokens from the lexer into an abstract syntax tree
+ * by the given grammar
+ */
 class Parser {
    private:
     Lexer *_lexer;

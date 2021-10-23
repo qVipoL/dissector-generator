@@ -4,6 +4,10 @@
 #include "../Generator/Endian/EndianType.h"
 #include "std_include.h"
 
+/*
+ * Utility functions for the generator
+ */
+
 int typeIndex(string type);
 int baseTypeLen(string type);
 

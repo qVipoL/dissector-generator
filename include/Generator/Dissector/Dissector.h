@@ -3,6 +3,10 @@
 
 #include "../../util/std_include.h"
 
+/*
+ * Dissector
+ * Usage - Represents the dissector to be generated
+ */
 class Dissector {
    private:
     string _details, _table, _table_entry, _struct_entry;

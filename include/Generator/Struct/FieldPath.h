@@ -5,6 +5,11 @@
 #include "../../util/std_include.h"
 #include "PathType.h"
 
+/*
+ * FieldPath
+ * Usage - Represents the path to a field (variable)
+ * used in the conditional statement of the switch-case
+ */
 class FieldPath {
    private:
     PathType _path_type;

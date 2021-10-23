@@ -4,6 +4,10 @@
 #include "../util/std_include.h"
 #include "TokenType.h"
 
+/*
+ * Token
+ * Usage - token that the lexer returns
+ */
 class Token {
    private:
     TokenType _type;

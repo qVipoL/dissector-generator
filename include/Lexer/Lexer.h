@@ -4,6 +4,10 @@
 #include "../Token/Token.h"
 #include "../util/std_include.h"
 
+/*
+ * Lexer
+ * Usage - breaks the string of text passed to it into tokens
+ */
 class Lexer {
    private:
     string _content;

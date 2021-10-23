@@ -1,7 +1,7 @@
 #ifndef __TOKEN_TYPE_H__
 #define __TOKEN_TYPE_H__
 
-/* Token Types (defined in grammar.txt) */
+/* Token Types */
 enum TokenType {
     TOKEN_ID,
     TOKEN_NUMBER,
