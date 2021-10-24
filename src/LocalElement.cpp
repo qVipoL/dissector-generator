@@ -129,6 +129,9 @@ string LocalElement::generateLuaFieldsDef(string field_prefix, string search_pre
         if (_generator->getEnum(_type))
             stringStream << ", " << _type;
 
+        if (_bit_mask.compare("") != 0)
+            stringStream << ", 0x" << _bit_mask;
+
         stringStream << ")" << endl;
 
         field_names->push_back(field_name);

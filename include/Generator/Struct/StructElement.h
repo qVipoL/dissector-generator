@@ -21,7 +21,7 @@ class StructInfo;
  */
 class StructElement {
    protected:
-    string _type, _id;
+    string _type, _id, _bit_mask;
     StructElementType _element_type;
     FieldPath *_condition_path;
     Generator *_generator;
@@ -37,6 +37,7 @@ class StructElement {
     virtual vector<FieldPath *> getNeeded() = 0;
     virtual vector<FieldPath *> getItemNeeded() = 0;
 
+    void setBitMask(string bit_mask);
     void setGenerator(Generator *generator);
     void setType(string type);
     void setId(string id);

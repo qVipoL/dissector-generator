@@ -162,6 +162,9 @@ StructElement *Generator::processLocalElement(AST *node) {
     string id = node->getId(1) != "" ? node->getId(1) : node->getString(0);
     StructElement *localElement = new LocalElement(TYPE_LOCAL_ELEMENT);
 
+    if (node->getNumber(0).compare("") != 0)  // if bit mask
+        localElement->setBitMask(decToHex(node->getNumber(0)));
+
     localElement->setId(id);
     localElement->setType(type);
     localElement->setGenerator(this);

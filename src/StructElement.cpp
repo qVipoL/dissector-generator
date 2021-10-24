@@ -21,6 +21,10 @@ string StructElement::getType() {
     return _type;
 }
 
+void StructElement::setBitMask(string bit_mask) {
+    _bit_mask = bit_mask;
+}
+
 void StructElement::setGenerator(Generator *generator) {
     _generator = generator;
 }

@@ -16,4 +16,6 @@ string getLuaDisplayType(string type);
 string getLuaAdder(string type, EndianType endian);
 string baseTypeLenString(string type);
 
+string decToHex(string dec);
+
 #endif

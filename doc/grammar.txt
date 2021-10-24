@@ -36,7 +36,7 @@ struct: "struct" ID "{" (structBody ";")+ "}"
 structBody: localElement (AST_STRUCT_BODY_LOCAL)
     | switch (AST_STRUCT_BODY_SWITCH)
 
-localElement: ID (ID | STRING)
+localElement: ID (":" NUMBER)? (ID | STRING)
 
 /*=== SWITCH ===*/
 

@@ -246,9 +246,16 @@ AST *Parser::parseLocalElement() {
 
     string elementType = _curr_token->getValue();
     this->eatToken(TOKEN_ID);
-    string elementValue = _curr_token->getValue();
-
     node->addId(elementType);
+
+    if (_curr_token->getType() == TOKEN_SEPARATOR) {
+        this->eatToken(TOKEN_SEPARATOR, ":");
+        string bit_mask = _curr_token->getValue();
+        this->eatToken(TOKEN_NUMBER);
+        node->addNumber(bit_mask);
+    }
+
+    string elementValue = _curr_token->getValue();
 
     if (_curr_token->getType() == TOKEN_ID) {
         this->eatToken(TOKEN_ID);

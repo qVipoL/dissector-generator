@@ -80,3 +80,12 @@ string baseTypeLenString(string type) {
 
     return stringStream.str();
 }
+
+string decToHex(string dec) {
+    ostringstream stringStream;
+    int num = stoi(dec);
+
+    stringStream << hex << num;
+
+    return stringStream.str();
+}
