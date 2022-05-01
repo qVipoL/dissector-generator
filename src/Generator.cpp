@@ -378,7 +378,7 @@ string Generator::generateProtoEnding(string name) {
     Dissector *proto = _dissectors[name];
     ostringstream stringStream;
 
-    stringStream << "ent_table = Dissector.get(\"" << proto->getTable() << "\")" << endl;
+    stringStream << "ent_table = DissectorTable.get(\"" << proto->getTable() << "\")" << endl;
     stringStream << "ent_table:add("
                  << "\"" << proto->getTableEntry() << "\"";
     stringStream << ", " << name << "_proto)" << endl;
