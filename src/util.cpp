@@ -7,7 +7,7 @@ static vector<string> LUA_TYPES = {
     "uint8", "uint16", "uint32", "uint64"};
 
 static vector<string> FIELD_BASE = {
-    "BASE.DEC", "BASE.DEC", "BASE.DEC", "BASE.DEC"};
+    "base.DEC", "base.DEC", "base.DEC", "base.DEC"};
 
 static vector<int> BASE_TYPE_LENS = {
     1, 2, 4, 8};
